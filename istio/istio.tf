@@ -2,6 +2,7 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
+#istio
 resource "kubernetes_manifest" "knative_istio" {
   manifest = file("/knative-istio/istio.yaml")
 }
