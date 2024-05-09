@@ -49,6 +49,11 @@ readinessProbe:
   initialDelaySeconds: 3
   periodSeconds: 3
 
+domainmapping:
+  create: false
+  domain: NA
+  service: NA
+
 containerConcurrency:
   enable: true
   limit: 3

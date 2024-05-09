@@ -49,6 +49,10 @@ readinessProbe:
   initialDelaySeconds: 3
   periodSeconds: 3
 
+domainmapping:
+  create: true
+  domain: backend.dev.ragaai.ai
+  service: backend
 
 containerConcurrency:
   enable: false
