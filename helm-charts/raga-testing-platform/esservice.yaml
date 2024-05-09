@@ -1,0 +1,92 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/esservice-knative-release"
+  tag: "14-d97c0e8"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "esservice"
+
+serviceAccount:
+  create: true
+  name: "esservice"
+
+broker:
+  create: false
+  dlq: "event-failure-capture"
+  retry: 3
+
+trigger:
+  create: false
+
+service:
+  port: 8083
+
+resources:
+  limits:
+    cpu: 1
+    # memory: 640M
+  requests:
+    cpu: 100m
+    memory: 640M
+
+autoscaling:
+  minReplicas: 1
+  maxReplicas: 3
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8083
+  initialDelaySeconds: 10
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8083
+  initialDelaySeconds: 10
+  periodSeconds: 3
+
+
+containerConcurrency:
+  enable: false
+  limit: 1
+
+env:
+  - name: ELASTIC_SEARCH_BASE_URL
+    valueFrom: 
+      secretKeyRef:
+        name: esservice
+        key: ELASTIC_SEARCH_BASE_URL
+  - name: ELASTIC_SEARCH_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: esservice
+        key: ELASTIC_SEARCH_PASSWORD
+  - name: ELASTIC_SEARCH_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: esservice
+        key: ELASTIC_SEARCH_USERNAME
+  - name: ENV_TYPE
+    valueFrom:
+      secretKeyRef:
+        name: esservice
+        key: ENV_TYPE
+  - name: LOGGING_LEVEL
+    valueFrom:
+      secretKeyRef:
+        name: esservice
+        key: LOGGING_LEVEL
+  - name: S3_IMAGE_BASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: esservice
+        key: S3_IMAGE_BASE_URL
+  - name: REDIS_URL
+    valueFrom:
+      secretKeyRef:
+        name: esservice
+        key: REDIS_URL

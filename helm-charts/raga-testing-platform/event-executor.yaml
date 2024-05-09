@@ -1,0 +1,102 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/event-executor-knative-release"
+  tag: "10-8776237"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "event-executor"
+
+serviceAccount:
+  create: true
+  name: "event-executor"
+
+broker:
+  create: true
+  dlq: "event-failure-capture"
+  retry: 3
+
+trigger:
+  create: true
+
+service:
+  port: 8000
+
+resources: 
+  limits:
+    cpu: 1
+    memory: 2500M
+  requests:
+    cpu: 100m
+    memory: 640M
+
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+
+containerConcurrency:
+  enable: false
+  limit: 3
+
+env:
+  - name: DATA_LOADER_CONCURRENCY
+    valueFrom: 
+      secretKeyRef:
+        name: event-executor
+        key: DATA_LOADER_CONCURRENCY
+  - name: DATA_LOADER_KAFKA_BROKER_URL
+    valueFrom: 
+      secretKeyRef:
+        name: event-executor
+        key: DATA_LOADER_KAFKA_BROKER_URL
+  - name: IMAGE_UPLOAD_S3_URL_PREFIX
+    valueFrom: 
+      secretKeyRef:
+        name: event-executor
+        key: IMAGE_UPLOAD_S3_URL_PREFIX
+  - name: STATUS_UPDATER_CONCURRENCY
+    valueFrom: 
+      secretKeyRef:
+        name: event-executor
+        key: STATUS_UPDATER_CONCURRENCY
+  - name: STATUS_UPDATER_KAFKA_BROKER_URL
+    valueFrom:
+      secretKeyRef:
+        name: event-executor
+        key: STATUS_UPDATER_KAFKA_BROKER_URL
+  - name: VIDEO_DOWNLOAD_METHOD
+    valueFrom: 
+      secretKeyRef:
+        name: event-executor
+        key: VIDEO_DOWNLOAD_METHOD
+  - name: SERVICE_INVOCATION_METHOD
+    valueFrom: 
+      secretKeyRef:
+        name: event-executor
+        key: SERVICE_INVOCATION_METHOD
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: backend
+        key: AWS_ACCESS_KEY_ID
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: backend
+        key: AWS_SECRET_ACCESS_KEY

@@ -1,0 +1,54 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: {{ include "ragaai-helm.fullname" . }}
+  {{- if .Values.DisablePublicAccess }}
+  labels:
+    networking.knative.dev/visibility: cluster-local
+  {{- end }}
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/min-scale: "{{ .Values.autoscaling.minReplicas }}"
+        autoscaling.knative.dev/max-scale: "{{ .Values.autoscaling.maxReplicas }}"
+        # networking.knative.dev/http-protocol: "redirected"
+        autoscaling.knative.dev/target-utilization-percentage: "100"
+        autoscaling.knative.dev/scale-down-delay: "{{ .Values.autoscaling.ScaleDownDelay }}"
+        # autoscaling.knative.dev/class: "hpa.autoscaling.knative.dev"
+        # autoscaling.knative.dev/metric: "{{ .Values.hpa.metric }}"
+        # autoscaling.knative.dev/target: "{{ .Values.hpa.target }}"
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets.create }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets.name }}
+      {{- end }}
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          resources: {{ .Values.resources | toYaml | nindent 12 }}
+          env: {{ .Values.env | toYaml | nindent 12 }}
+          livenessProbe: {{ .Values.livenessProbe | toYaml | nindent 12 }}
+          readinessProbe: {{ .Values.readinessProbe | toYaml | nindent 12 }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+      {{- if .Values.containerConcurrency.enable }}
+      containerConcurrency: {{ .Values.containerConcurrency.limit }}
+      {{- end }}
+      timeoutSeconds: {{ .Values.containerConcurrency.timeoutSeconds }}
+      # {{- if .Values.DeployOnARM }}
+      # tolerations:
+      #   - key: "architecture"
+      #     operator: "Equal"
+      #     value: "arm"
+      #     effect: "NoSchedule"
+      # {{- end }}
+      #     #         - Effect: NO_SCHEDULE
+      #     # Key: "architecture"
+      #     # Value: "arm"
+
+
+      # helm install llm-operator -n raga-models --set image.tag=llm-operator-arm-5 --set image.repository=ragaai/models --set imagePullSecrets.create=true ./helm-chart
+      # helm upgrade faster-rcnn -n raga-models --set image.tag=arm4 --set image.repository=514856084243.dkr.ecr.ap-south-1.amazonaws.com/raga-dev-faster-rcnn-model ./helm-chart-rcnn

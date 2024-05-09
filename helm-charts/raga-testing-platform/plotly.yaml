@@ -1,0 +1,87 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/plotly-knative-release"
+  tag: "4-e762717"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "plotly"
+
+serviceAccount:
+  create: false
+  name: "plotly"
+
+broker:
+  create: false
+  dlq: "event-failure-capture"
+  retry: 3
+
+trigger:
+  create: false
+
+service:
+  port: 8050
+
+resources: 
+  limits:
+    cpu: 1
+    memory: 3500M
+  requests:
+    cpu: 100m
+    memory: 640M
+
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+
+livenessProbe:
+  httpGet:
+    path: /plotly/api/health
+    port: 8050
+  initialDelaySeconds: 10
+  periodSeconds: 3
+readinessProbe:
+  httpGet:
+    path: /plotly/api/health
+    port: 8050
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+
+containerConcurrency:
+  enable: true
+  limit: 1
+
+env:
+  - name: API_URL
+    valueFrom: 
+      secretKeyRef:
+        name: plotly
+        key: API_URL
+  - name: CACHE_TIMEOUT
+    valueFrom:
+      secretKeyRef:
+        name: plotly
+        key: CACHE_TIMEOUT
+  - name: NUMBA_CACHE_DIR
+    valueFrom:
+      secretKeyRef:
+        name: plotly
+        key: NUMBA_CACHE_DIR
+  - name: REDIS_URL
+    valueFrom:
+      secretKeyRef:
+        name: plotly
+        key: REDIS_URL
+  - name: TF_API_URL
+    valueFrom:
+      secretKeyRef:
+        name: plotly
+        key: TF_API_URL
+  - name: JWT_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: plotly
+        key: JWT_SECRET

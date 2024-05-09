@@ -1,0 +1,25 @@
+{{- if .Values.broker.create -}}
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  annotations:
+    eventing.knative.dev/broker.class: Kafka
+  name: {{ include "ragaai-helm.fullname" . }}
+  labels:
+    {{- include "ragaai-helm.labels" . | nindent 4 }}
+spec:
+  config:
+    apiVersion: v1
+    kind: ConfigMap
+    name: kafka-broker-config
+    namespace: knative-eventing
+  delivery:
+    deadLetterSink:
+      ref:
+        apiVersion: serving.knative.dev/v1
+        kind: Service
+        name: {{ .Values.broker.dlq }}
+    backoffDelay: PT10S
+    backoffPolicy: linear
+    retry: {{ .Values.broker.retry }}
+{{- end }}

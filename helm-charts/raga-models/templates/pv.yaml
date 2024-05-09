@@ -1,0 +1,17 @@
+{{- if and .Values.PVC.enable (eq .Values.PVC.cloud "aws") }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.PVC.name }}
+spec:
+  capacity:
+    storage: {{ .Values.PVC.storage }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.PVC.storageClassName }}
+  csi:
+    driver: {{ .Values.PVC.csiDriver }} 
+    volumeHandle: {{ .Values.PVC.FilesystemID }}
+{{- end }}

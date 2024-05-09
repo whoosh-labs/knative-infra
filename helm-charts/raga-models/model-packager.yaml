@@ -1,0 +1,107 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/model-packager-release"
+  tag: "7-901c8b7"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  create: true
+  name: "regcred"
+
+fullnameOverride: "model-packager"
+
+serviceAccount:
+  create: true
+  name: "model-packager"
+
+broker:
+  create: true
+  dlq: "event-failure-capture"
+  retry: 1
+
+trigger:
+  create: true
+
+service:
+  port: 8000
+
+DisablePublicAccess: false
+
+resources:
+  limits:
+    cpu: 1
+    memory: 4096M
+  requests:
+    cpu: 1
+    memory: 4096M
+
+hpa:
+  # metric availabe values memory | cpu
+  metric: memory
+  target: 80
+  
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+  ScaleDownDelay: 2m
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+
+containerConcurrency:
+  enable: true
+  limit: 1
+
+
+PVC:
+  enable: false
+  cloud: azure  #allowable values aws | azure
+  name: "model-packager-pvc"
+  storageClassName: "azurefile"
+  #following values required for only aws efs
+  storage: 50Gi
+  csiDriver: "efs.csi.aws.com"
+  FilesystemID: "fs-0b2eb5c3625e0aed9"
+
+env:
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: model-packager
+        key: AWS_ACCESS_KEY_ID
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: model-packager
+        key: AWS_SECRET_ACCESS_KEY
+  - name: DOCKERHUB_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: model-packager
+        key: DOCKERHUB_USERNAME
+  - name: DOCKERHUB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: model-packager
+        key: DOCKERHUB_PASSWORD
+  - name: SERVICE_INVOCATION_METHOD
+    valueFrom:
+      secretKeyRef:
+        name: model-packager
+        key: SERVICE_INVOCATION_METHOD
+  - name: STATUS_UPDATER_KAFKA_BROKER_URL
+    valueFrom:
+      secretKeyRef:
+        name: model-packager
+        key: STATUS_UPDATER_KAFKA_BROKER_URL

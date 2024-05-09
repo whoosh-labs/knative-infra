@@ -1,0 +1,110 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/python-operator-batch-processor-knative-release"
+  tag: "4-9141e9d"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "python-operator-batch-processor"
+
+DisablePublicAccess: true
+
+serviceAccount:
+  create: true
+  name: "python-operator-batch-processor"
+
+broker:
+  create: true
+  dlq: "event-failure-capture"
+  retry: 3
+
+trigger:
+  create: true
+
+service:
+  port: 8000
+
+resources: 
+  limits:
+    cpu: 1
+    memory: 2500M
+  requests:
+    cpu: 100m
+    memory: 640M
+
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+
+containerConcurrency:
+  enable: true
+  limit: 3
+
+env:
+  - name: ELASTIC_PASSWORD
+    valueFrom: 
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: ELASTIC_PASSWORD
+  - name: ELASTIC_URL
+    valueFrom: 
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: ELASTIC_URL
+  - name: LM_EXECUTER_QUEUE
+    valueFrom: 
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: LM_EXECUTER_QUEUE
+  - name: LM_MAX_CONCURRENCY
+    valueFrom: 
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: LM_MAX_CONCURRENCY
+  - name: S3_BUCKET
+    valueFrom: 
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: S3_BUCKET
+  - name: SQS_ENDPOINT_URL
+    valueFrom: 
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: SQS_ENDPOINT_URL
+  - name: NUMBA_CACHE_DIR
+    valueFrom:
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: NUMBA_CACHE_DIR
+  - name: STATUS_UPDATER_QUEUE
+    valueFrom:
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: STATUS_UPDATER_QUEUE
+
+  - name: STATUS_UPDATER_QUEUE_URL
+    valueFrom:
+      secretKeyRef:
+        name: python-operator-batch-processor
+        key: STATUS_UPDATER_QUEUE_URL
+  # - name: SERVICE_INVOCATION_METHOD
+  #   valueFrom: 
+  #     secretKeyRef:
+  #       name: python-operator-batch-processor
+  #       key: SERVICE_INVOCATION_METHOD

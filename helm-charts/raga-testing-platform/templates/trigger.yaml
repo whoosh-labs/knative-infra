@@ -1,0 +1,15 @@
+{{- if .Values.trigger.create -}}
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: {{ include "ragaai-helm.fullname" . }}
+  annotations:
+     kafka.eventing.knative.dev/delivery.order: ordered
+spec:
+  broker: {{ include "ragaai-helm.fullname" . }}
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: {{ include "ragaai-helm.fullname" . }}
+{{- end }}

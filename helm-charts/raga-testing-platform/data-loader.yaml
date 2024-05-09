@@ -1,0 +1,90 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/data-loader-knative-release"
+  tag: "7-6eb47b1"
+  pullPolicy: IfNotPresent
+metadata:
+  name: "data-loader"
+  labels:
+    app: "data-loader"
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "data-loader"
+
+serviceAccount:
+  create: true
+  name: "data-loader"
+
+broker:
+  create: true
+  dlq: "event-failure-capture"
+  retry: 3
+
+trigger:
+  create: true
+
+service:
+  port: 8080
+
+resources:
+  limits:
+    cpu: 1
+    # memory: 640M
+  requests:
+    cpu: 100m
+    memory: 640M
+
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+
+containerConcurrency:
+  enable: true
+  limit: 3
+
+env:
+  - name: ELASTIC_SEARCH_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: data-loader
+        key: ELASTIC_SEARCH_PASSWORD
+  - name: ELASTIC_SEARCH_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: data-loader
+        key: ELASTIC_SEARCH_USERNAME
+  - name: elasticHost
+    valueFrom:
+      secretKeyRef:
+        name: data-loader
+        key: elasticHost
+  - name: elasticPort
+    valueFrom:
+      secretKeyRef:
+        name: data-loader
+        key: elasticPort
+  - name: STATUS_UPDATER_KAFKA_BROKER_URL
+    valueFrom:
+      secretKeyRef:
+        name: data-loader
+        key: STATUS_UPDATER_KAFKA_BROKER_URL
+  - name: SERVICE_INVOCATION_METHOD
+    valueFrom:
+      secretKeyRef:
+        name: data-loader
+        key: SERVICE_INVOCATION_METHOD
