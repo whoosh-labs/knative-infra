@@ -12,6 +12,7 @@ fullnameOverride: "event-executor"
 serviceAccount:
   create: true
   name: "event-executor"
+  annotations: {}
 
 broker:
   create: true

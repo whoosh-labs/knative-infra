@@ -12,6 +12,7 @@ fullnameOverride: "status-updater"
 serviceAccount:
   create: true
   name: "status-updater"
+  annotations: {}
 
 broker:
   create: true

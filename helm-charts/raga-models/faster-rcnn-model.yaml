@@ -13,6 +13,7 @@ fullnameOverride: "faster-rcnn-model"
 serviceAccount:
   create: false
   name: "backend"
+  annotations: {}
 
 broker:
   create: false

@@ -12,6 +12,7 @@ fullnameOverride: "esservice"
 serviceAccount:
   create: true
   name: "esservice"
+  annotations: {}
 
 broker:
   create: false

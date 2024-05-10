@@ -13,7 +13,8 @@ fullnameOverride: "llm-operator"
 serviceAccount:
   create: false
   name: "backend"
-
+  annotations: {}
+  
 broker:
   create: false
   dlq: "event-failure-capture"

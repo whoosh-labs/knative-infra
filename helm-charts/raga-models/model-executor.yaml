@@ -13,6 +13,7 @@ fullnameOverride: "model-executor"
 serviceAccount:
   create: false
   name: "model-executor"
+  annotations: {}
 
 broker:
   create: true

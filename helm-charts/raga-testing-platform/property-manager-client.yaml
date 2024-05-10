@@ -12,6 +12,7 @@ fullnameOverride: "property-manager-client"
 serviceAccount:
   create: true
   name: "property-manager-client"
+  annotations: {}
 
 broker:
   create: true

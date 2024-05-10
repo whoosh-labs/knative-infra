@@ -12,6 +12,7 @@ fullnameOverride: "frontend"
 serviceAccount:
   create: true
   name: "frontend"
+  annotations: {}
 
 broker:
   create: false

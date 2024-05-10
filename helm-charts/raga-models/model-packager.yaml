@@ -13,6 +13,7 @@ fullnameOverride: "model-packager"
 serviceAccount:
   create: true
   name: "model-packager"
+  annotations: {}
 
 broker:
   create: true

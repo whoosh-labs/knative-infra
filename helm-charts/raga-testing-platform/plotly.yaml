@@ -12,6 +12,7 @@ fullnameOverride: "plotly"
 serviceAccount:
   create: false
   name: "plotly"
+  annotations: {}
 
 broker:
   create: false

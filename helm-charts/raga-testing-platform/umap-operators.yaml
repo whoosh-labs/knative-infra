@@ -12,6 +12,7 @@ fullnameOverride: "umap-operators"
 serviceAccount:
   create: true
   name: "umap-operators"
+  annotations: {}
 
 broker:
   create: true

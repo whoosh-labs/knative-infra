@@ -12,6 +12,7 @@ fullnameOverride: "python-operator"
 serviceAccount:
   create: true
   name: "python-operator"
+  annotations: {}
 
 broker:
   create: true

@@ -15,6 +15,7 @@ fullnameOverride: "data-loader"
 serviceAccount:
   create: true
   name: "data-loader"
+  annotations: {}
 
 broker:
   create: true
