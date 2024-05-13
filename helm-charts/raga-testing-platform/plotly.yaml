@@ -11,7 +11,7 @@ fullnameOverride: "plotly"
 
 serviceAccount:
   create: false
-  name: "plotly"
+  name: "raga-role"
   annotations: {}
 
 broker:

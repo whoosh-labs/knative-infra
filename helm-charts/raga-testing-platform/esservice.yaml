@@ -11,7 +11,7 @@ fullnameOverride: "esservice"
 
 serviceAccount:
   create: true
-  name: "esservice"
+  name: "raga-role"
   annotations: {}
 
 broker:

@@ -11,7 +11,7 @@ fullnameOverride: "property-manager-client"
 
 serviceAccount:
   create: true
-  name: "property-manager-client"
+  name: "raga-role"
   annotations: {}
 
 broker:

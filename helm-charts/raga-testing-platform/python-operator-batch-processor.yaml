@@ -13,7 +13,7 @@ DisablePublicAccess: true
 
 serviceAccount:
   create: true
-  name: "python-operator-batch-processor"
+  name: "raga-role"
   annotations: {}
 
 broker:

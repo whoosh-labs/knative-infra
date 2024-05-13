@@ -11,7 +11,7 @@ fullnameOverride: "python-operator"
 
 serviceAccount:
   create: true
-  name: "python-operator"
+  name: "raga-role"
   annotations: {}
 
 broker:

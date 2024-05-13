@@ -12,9 +12,9 @@ fullnameOverride: "llm-operator"
 
 serviceAccount:
   create: false
-  name: "backend"
+  name: "raga-models"
   annotations: {}
-  
+
 broker:
   create: false
   dlq: "event-failure-capture"

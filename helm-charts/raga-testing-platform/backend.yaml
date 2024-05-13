@@ -11,7 +11,7 @@ fullnameOverride: "backend"
 
 serviceAccount:
   create: true
-  name: "backend"
+  name: "raga-role"
   annotations: {}
 
 broker:

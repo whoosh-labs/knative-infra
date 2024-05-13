@@ -10,8 +10,8 @@ imagePullSecrets:
 fullnameOverride: "frontend"
 
 serviceAccount:
-  create: true
-  name: "frontend"
+  create: false
+  name: "raga-role"
   annotations: {}
 
 broker:

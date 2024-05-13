@@ -11,7 +11,7 @@ fullnameOverride: "event-executor"
 
 serviceAccount:
   create: true
-  name: "event-executor"
+  name: "raga-role"
   annotations: {}
 
 broker:
