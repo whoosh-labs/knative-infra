@@ -60,41 +60,6 @@ containerConcurrency:
   limit: 3
 
 env:
-  - name: DATA_LOADER_CONCURRENCY
-    valueFrom: 
-      secretKeyRef:
-        name: event-executor
-        key: DATA_LOADER_CONCURRENCY
-  - name: DATA_LOADER_KAFKA_BROKER_URL
-    valueFrom: 
-      secretKeyRef:
-        name: event-executor
-        key: DATA_LOADER_KAFKA_BROKER_URL
-  - name: IMAGE_UPLOAD_S3_URL_PREFIX
-    valueFrom: 
-      secretKeyRef:
-        name: event-executor
-        key: IMAGE_UPLOAD_S3_URL_PREFIX
-  - name: STATUS_UPDATER_CONCURRENCY
-    valueFrom: 
-      secretKeyRef:
-        name: event-executor
-        key: STATUS_UPDATER_CONCURRENCY
-  - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    valueFrom:
-      secretKeyRef:
-        name: event-executor
-        key: STATUS_UPDATER_KAFKA_BROKER_URL
-  - name: VIDEO_DOWNLOAD_METHOD
-    valueFrom: 
-      secretKeyRef:
-        name: event-executor
-        key: VIDEO_DOWNLOAD_METHOD
-  - name: SERVICE_INVOCATION_METHOD
-    valueFrom: 
-      secretKeyRef:
-        name: event-executor
-        key: SERVICE_INVOCATION_METHOD
   - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
@@ -105,3 +70,23 @@ env:
       secretKeyRef:
         name: backend
         key: AWS_SECRET_ACCESS_KEY
+  - name: IMAGE_UPLOAD_S3_URL_PREFIX
+    valueFrom: 
+      secretKeyRef:
+        name: event-executor
+        key: IMAGE_UPLOAD_S3_URL_PREFIX
+  - name: STATUS_UPDATER_CONCURRENCY
+    valueFrom: 
+      secretKeyRef:
+        name: event-executor
+        key: STATUS_UPDATER_CONCURRENCY
+  - name: DATA_LOADER_CONCURRENCY
+    value: 10
+  - name: DATA_LOADER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader"
+  - name: STATUS_UPDATER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+  - name: VIDEO_DOWNLOAD_METHOD
+    value: "boto"
+  - name: SERVICE_INVOCATION_METHOD
+    value: "knative"

@@ -60,33 +60,18 @@ containerConcurrency:
   limit: 1
 
 env:
-  - name: API_URL
-    valueFrom: 
-      secretKeyRef:
-        name: plotly
-        key: API_URL
-  - name: CACHE_TIMEOUT
-    valueFrom:
-      secretKeyRef:
-        name: plotly
-        key: CACHE_TIMEOUT
-  - name: NUMBA_CACHE_DIR
-    valueFrom:
-      secretKeyRef:
-        name: plotly
-        key: NUMBA_CACHE_DIR
-  - name: REDIS_URL
-    valueFrom:
-      secretKeyRef:
-        name: plotly
-        key: REDIS_URL
-  - name: TF_API_URL
-    valueFrom:
-      secretKeyRef:
-        name: plotly
-        key: TF_API_URL
   - name: JWT_SECRET
     valueFrom:
       secretKeyRef:
         name: plotly
         key: JWT_SECRET
+  - name: API_URL
+    value: "http://esservice.raga.svc.cluster.local"
+  - name: CACHE_TIMEOUT
+    value: "10800"
+  - name: NUMBA_CACHE_DIR
+    value: "/tmp"
+  - name: REDIS_URL
+    value: "redis://redis-master.redis.svc.cluster.local:6379"
+  - name: TF_API_URL
+    value: "http://backend.raga.svc.cluster.local"

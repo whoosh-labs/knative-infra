@@ -97,12 +97,6 @@ env:
         name: model-packager
         key: DOCKERHUB_PASSWORD
   - name: SERVICE_INVOCATION_METHOD
-    valueFrom:
-      secretKeyRef:
-        name: model-packager
-        key: SERVICE_INVOCATION_METHOD
+    value: "knative"
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    valueFrom:
-      secretKeyRef:
-        name: model-packager
-        key: STATUS_UPDATER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"

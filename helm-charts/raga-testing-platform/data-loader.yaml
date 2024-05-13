@@ -79,17 +79,8 @@ env:
         name: data-loader
         key: elasticHost
   - name: elasticPort
-    valueFrom:
-      secretKeyRef:
-        name: data-loader
-        key: elasticPort
+    value: 9200
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    valueFrom:
-      secretKeyRef:
-        name: data-loader
-        key: STATUS_UPDATER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
   - name: SERVICE_INVOCATION_METHOD
-    valueFrom:
-      secretKeyRef:
-        name: data-loader
-        key: SERVICE_INVOCATION_METHOD
+    value: "knative"

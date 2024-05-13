@@ -76,22 +76,10 @@ env:
         name: esservice
         key: ELASTIC_SEARCH_USERNAME
   - name: ENV_TYPE
-    valueFrom:
-      secretKeyRef:
-        name: esservice
-        key: ENV_TYPE
+    value: "devel"
   - name: LOGGING_LEVEL
-    valueFrom:
-      secretKeyRef:
-        name: esservice
-        key: LOGGING_LEVEL
+    value: "INFO"
   - name: S3_IMAGE_BASE_URL
-    valueFrom:
-      secretKeyRef:
-        name: esservice
-        key: S3_IMAGE_BASE_URL
+    value: "https://ragaaimedia.s3.ap-south-1.amazonaws.com/"
   - name: REDIS_URL
-    valueFrom:
-      secretKeyRef:
-        name: esservice
-        key: REDIS_URL
+    value: "redis://redis-master.redis.svc.cluster.local:6379"

@@ -65,101 +65,21 @@ env:
       secretKeyRef:
         name: umap-operators
         key: ELASTIC_PASSWORD
-  - name: LM_EXECUTER_QUEUE
-    valueFrom: 
-      secretKeyRef:
-        name: umap-operators
-        key: LM_EXECUTER_QUEUE
-  - name: LM_MAX_CONCURRENCY
-    valueFrom: 
-      secretKeyRef:
-        name: umap-operators
-        key: LM_MAX_CONCURRENCY
-  - name: NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA
-    valueFrom: 
-      secretKeyRef:
-        name: umap-operators
-        key: NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA
-  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE
-    valueFrom: 
-      secretKeyRef:
-        name: umap-operators
-        key: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE
-  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL
-    valueFrom: 
-      secretKeyRef:
-        name: umap-operators
-        key: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL
   - name: ELASTIC_URL
     valueFrom:
       secretKeyRef:
         name: umap-operators
         key: ELASTIC_URL
-  - name: NUMBA_CACHE_DIR
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: NUMBA_CACHE_DIR
   - name: ELASTIC_USERNAME
     valueFrom:
       secretKeyRef:
         name: umap-operators
         key: ELASTIC_USERNAME
-  - name: LM_EXECUTER_QUEUE
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: LM_EXECUTER_QUEUE
   - name: S3_BUCKET
     valueFrom:
       secretKeyRef:
         name: umap-operators
         key: S3_BUCKET
-  - name: SQS_ENDPOINT_URL
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: SQS_ENDPOINT_URL
-  - name: STATUS_UPDATER_QUEUE
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: STATUS_UPDATER_QUEUE
-  - name: STATUS_UPDATER_QUEUE_URL
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: STATUS_UPDATER_QUEUE_URL
-  - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: STATUS_UPDATER_KAFKA_BROKER_URL
-  - name: SERVICE_INVOCATION_METHOD
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: SERVICE_INVOCATION_METHOD
-  - name: LM_EXECUTOR_KAFKA_BROKER_URL
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: LM_EXECUTOR_KAFKA_BROKER_URL
-  - name: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL
-    valueFrom: 
-      secretKeyRef:
-        name: umap-operators
-        key: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL
-  - name: LLM_OPERATOR
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: LLM_OPERATOR
-  - name: FASTER_RCNN_MODEL_URL
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: FASTER_RCNN_MODEL_URL
   - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
@@ -170,13 +90,36 @@ env:
       secretKeyRef:
         name: backend
         key: AWS_SECRET_ACCESS_KEY
+  - name: LM_EXECUTER_QUEUE
+    value: "NA as it is a Knative environment"
+  - name: LM_MAX_CONCURRENCY
+    value: 20
+  - name: NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA
+    value: 10
+  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE
+    value: "NA as it is a Knative environment"
+  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL
+    value: "NA as it is a Knative environment"
+  - name: NUMBA_CACHE_DIR
+    value: "/tmp"
+  - name: LM_EXECUTER_QUEUE
+    value: "NA as it is a Knative environment"
+  - name: SQS_ENDPOINT_URL
+    value: "https://sqs.ap-south-1.amazonaws.com"
+  - name: STATUS_UPDATER_QUEUE
+    value: "NA as it is a Knative environment"
+  - name: STATUS_UPDATER_QUEUE_URL
+    value: "NA as it is a Knative environment"
+  - name: STATUS_UPDATER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+  - name: SERVICE_INVOCATION_METHOD
+    value: "knative"
+  - name: LM_EXECUTOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor"
+  - name: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator-batch-processor"
   - name: LLM_OPERATOR
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: LLM_OPERATOR
+    value: "http://llm-operator.raga-models.svc.cluster.local"
   - name: FASTER_RCNN_MODEL_URL
-    valueFrom:
-      secretKeyRef:
-        name: umap-operators
-        key: FASTER_RCNN_MODEL_URL
+    value: "http://faster-rcnn-model.raga-models.svc.cluster.local/"
+

@@ -81,20 +81,11 @@ env:
         name: status-updater
         key: MYSQL_USERNAME
   - name: PYTHON_OPERATOR_KAFKA_BROKER_URL
-    valueFrom: 
-      secretKeyRef:
-        name: status-updater
-        key: PYTHON_OPERATOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator"
   - name: DATA_LOADER_KAFKA_BROKER_URL
-    valueFrom: 
-      secretKeyRef:
-        name: status-updater
-        key: DATA_LOADER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader"
   - name: SERVICE_INVOCATION_METHOD
-    valueFrom: 
-      secretKeyRef:
-        name: status-updater
-        key: SERVICE_INVOCATION_METHOD
+    value: "knative"
   - name: UMAP_OPERATOR_KAFKA_BROKER_URL
     value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/umap-operators"
   - name: DATA_LOADER_QUEUE_URL

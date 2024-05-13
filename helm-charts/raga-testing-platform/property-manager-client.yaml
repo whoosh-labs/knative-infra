@@ -61,12 +61,6 @@ containerConcurrency:
 
 env:
   - name: REDIS_HOST
-    valueFrom: 
-      secretKeyRef:
-        name: property-manager-client
-        key: REDIS_HOST
+    value: "redis-master.redis.svc.cluster.local"
   - name: REDIS_PORT
-    valueFrom: 
-      secretKeyRef:
-        name: property-manager-client
-        key: REDIS_PORT
+    value: 6379

@@ -72,42 +72,23 @@ env:
       secretKeyRef:
         name: python-operator-batch-processor
         key: ELASTIC_URL
-  - name: LM_EXECUTER_QUEUE
-    valueFrom: 
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: LM_EXECUTER_QUEUE
-  - name: LM_MAX_CONCURRENCY
-    valueFrom: 
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: LM_MAX_CONCURRENCY
   - name: S3_BUCKET
     valueFrom: 
       secretKeyRef:
         name: python-operator-batch-processor
         key: S3_BUCKET
+  - name: LM_EXECUTER_QUEUE
+    value: "NA as it is a Knative environment"
+  - name: LM_MAX_CONCURRENCY
+    value: 20
   - name: SQS_ENDPOINT_URL
-    valueFrom: 
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: SQS_ENDPOINT_URL
+    value: "NA as it is a Knative environment"
   - name: NUMBA_CACHE_DIR
-    valueFrom:
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: NUMBA_CACHE_DIR
+    value: "/tmp"
   - name: STATUS_UPDATER_QUEUE
-    valueFrom:
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: STATUS_UPDATER_QUEUE
-
+    value: "NA as it is a Knative environment"
   - name: STATUS_UPDATER_QUEUE_URL
-    valueFrom:
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: STATUS_UPDATER_QUEUE_URL
+    value: "NA as it is a Knative environment"
   # - name: SERVICE_INVOCATION_METHOD
   #   valueFrom: 
   #     secretKeyRef:
