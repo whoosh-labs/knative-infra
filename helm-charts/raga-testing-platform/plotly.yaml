@@ -66,12 +66,12 @@ env:
         name: plotly
         key: JWT_SECRET
   - name: API_URL
-    value: "http://esservice.raga.svc.cluster.local"
+    value: 'http://esservice.raga.svc.cluster.local'
   - name: CACHE_TIMEOUT
-    value: "10800"
+    value: '10800'
   - name: NUMBA_CACHE_DIR
-    value: "/tmp"
+    value: '/tmp'
   - name: REDIS_URL
-    value: "redis://redis-master.redis.svc.cluster.local:6379"
+    value: 'redis://redis-master.redis.svc.cluster.local:6379'
   - name: TF_API_URL
-    value: "http://backend.raga.svc.cluster.local"
+    value: 'http://backend.raga.svc.cluster.local'

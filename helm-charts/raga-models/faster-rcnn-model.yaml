@@ -11,7 +11,7 @@ imagePullSecrets:
 fullnameOverride: "faster-rcnn-model"
 
 serviceAccount:
-  create: false
+  create: true
   name: "raga-models"
   annotations: {}
 
@@ -75,14 +75,14 @@ PVC:
   csiDriver: "efs.csi.aws.com"
   FilesystemID: "fs-0b2eb5c3625e0aed9"
 
-env:
-  - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: faster-rcnn-model
-        key: AWS_ACCESS_KEY_ID
-  - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: faster-rcnn-model
-        key: AWS_SECRET_ACCESS_KEY
+# env:
+#   - name: AWS_ACCESS_KEY_ID
+#     valueFrom:
+#       secretKeyRef:
+#         name: faster-rcnn-model
+#         key: AWS_ACCESS_KEY_ID
+#   - name: AWS_SECRET_ACCESS_KEY
+#     valueFrom:
+#       secretKeyRef:
+#         name: faster-rcnn-model
+#         key: AWS_SECRET_ACCESS_KEY

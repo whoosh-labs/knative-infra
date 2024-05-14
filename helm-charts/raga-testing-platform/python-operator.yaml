@@ -91,34 +91,34 @@ env:
         name: python-operator
         key: S3_BUCKET
   - name: LM_EXECUTER_QUEUE
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: LM_MAX_CONCURRENCY
     value: 20
   - name: NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA
     value: 10
   - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: NUMBA_CACHE_DIR
-    value: "/tmp"
+    value: '/tmp'
   - name: LM_EXECUTER_QUEUE
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: SQS_ENDPOINT_URL
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: STATUS_UPDATER_QUEUE
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: STATUS_UPDATER_QUEUE_URL
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater'
   - name: SERVICE_INVOCATION_METHOD
-    value: "knative"
+    value: 'knative'
   - name: LM_EXECUTOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor'
   - name: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator-batch-processor"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator-batch-processor'
   - name: LLM_OPERATOR
-    value: "http://llm-operator.raga-models.svc.cluster.local"
+    value: 'http://llm-operator.raga-models.svc.cluster.local'
   - name: FASTER_RCNN_MODEL_URL
-    value: "http://faster-rcnn-model.raga-models.svc.cluster.local/"
+    value: 'http://faster-rcnn-model.raga-models.svc.cluster.local/'

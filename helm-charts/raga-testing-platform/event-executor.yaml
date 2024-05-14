@@ -81,12 +81,12 @@ env:
         name: event-executor
         key: STATUS_UPDATER_CONCURRENCY
   - name: DATA_LOADER_CONCURRENCY
-    value: 10
+    value: '10'
   - name: DATA_LOADER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader'
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater'
   - name: VIDEO_DOWNLOAD_METHOD
-    value: "boto"
+    value: 'boto'
   - name: SERVICE_INVOCATION_METHOD
-    value: "knative"
+    value: 'knative'

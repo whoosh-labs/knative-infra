@@ -76,10 +76,10 @@ env:
         name: esservice
         key: ELASTIC_SEARCH_USERNAME
   - name: ENV_TYPE
-    value: "devel"
+    value: 'devel'
   - name: LOGGING_LEVEL
-    value: "INFO"
+    value: 'INFO'
   - name: S3_IMAGE_BASE_URL
-    value: "https://ragaaimedia.s3.ap-south-1.amazonaws.com/"
+    value: 'https://ragaaimedia.s3.ap-south-1.amazonaws.com/'
   - name: REDIS_URL
-    value: "redis://redis-master.redis.svc.cluster.local:6379"
+    value: 'redis://redis-master.redis.svc.cluster.local:6379'

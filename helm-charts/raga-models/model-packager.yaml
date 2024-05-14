@@ -76,16 +76,16 @@ PVC:
   FilesystemID: "fs-0b2eb5c3625e0aed9"
 
 env:
-  - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: model-packager
-        key: AWS_ACCESS_KEY_ID
-  - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: model-packager
-        key: AWS_SECRET_ACCESS_KEY
+  # - name: AWS_ACCESS_KEY_ID
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: model-packager
+  #       key: AWS_ACCESS_KEY_ID
+  # - name: AWS_SECRET_ACCESS_KEY
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: model-packager
+  #       key: AWS_SECRET_ACCESS_KEY
   - name: DOCKERHUB_USERNAME
     valueFrom:
       secretKeyRef:
@@ -97,6 +97,6 @@ env:
         name: model-packager
         key: DOCKERHUB_PASSWORD
   - name: SERVICE_INVOCATION_METHOD
-    value: "knative"
+    value: 'knative'
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater'

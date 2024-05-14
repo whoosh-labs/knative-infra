@@ -81,12 +81,12 @@ env:
         name: status-updater
         key: MYSQL_USERNAME
   - name: PYTHON_OPERATOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator'
   - name: DATA_LOADER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader'
   - name: SERVICE_INVOCATION_METHOD
-    value: "knative"
+    value: 'knative'
   - name: UMAP_OPERATOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/umap-operators"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/umap-operators'
   - name: DATA_LOADER_QUEUE_URL
-    value: "NA"
+    value: 'NA'
