@@ -120,57 +120,57 @@ env:
       secretKeyRef:
         name: backend
         key: AWS_REGION
-  - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: backend
-        key: AWS_ACCESS_KEY_ID
-  - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: backend
-        key: AWS_SECRET_ACCESS_KEY
+  # - name: AWS_ACCESS_KEY_ID
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: backend
+  #       key: AWS_ACCESS_KEY_ID
+  # - name: AWS_SECRET_ACCESS_KEY
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: backend
+  #       key: AWS_SECRET_ACCESS_KEY
   - name: RAG_SUGGESTION_URL
-    value: "dummy value to skip error in knative"
+    value: 'dummy value to skip error in knative'
   - name: FLOWISE_URL
-    value: "dummy value to skip error in knative"
+    value: 'dummy value to skip error in knative'
   - name: UAM_JWT_TOKEN_EXPIRATION
-    value: "86400000"
+    value: '86400000'
   - name: DATA_LOADER_ARN
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: DATA_LOADER_SQS_QUEUE_URL
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: DEFAULT_DATA_LOADER_ARN
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: ES_URL
-    value: "http://esservice.raga.svc.cluster.local"
+    value: 'http://esservice.raga.svc.cluster.local'
   - name: OOD_ARN
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: PYTHON_OPERATOR_ARN
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: PYTHON_OPERATOR_SQS_QUEUE_URL
-    value: "NA as it is a Knative environment"
+    value: 'NA as it is a Knative environment'
   - name: DATA_LOADER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader'
   - name: PYTHON_OPERATOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator'
   - name: SERVICE_INVOCATION_METHOD
-    value: "knative"
+    value: 'knative'
   - name: MAX_FILE_SIZE_IN_GB
-    value: 5
+    value: '5'
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater'
   - name: PROPERTY_MANAGER_SERVICE_URL
-    value: "http://property-manager-client.raga.svc.cluster.local"
+    value: 'http://property-manager-client.raga.svc.cluster.local'
   - name: REDIS_URL
-    value: "redis://redis-master.redis.svc.cluster.local:6379"
+    value: 'redis://redis-master.redis.svc.cluster.local:6379'
   - name: CLOUD_ENVIRONMENT
-    value: "AWS"
+    value: 'AWS'
   - name: AZURE_CONNECTION_STRING
-    value: "Azure"
+    value: 'Azure'
   - name: JWT_TOKEN_EXPIRATION
-    value: "86400000"
+    value: '86400000'
   - name: LOGGING_LEVEL
-    value: "INFO"
+    value: 'INFO'
   - name: JWT_REFRESH_TOKEN_EXPIRATION
-    value: "86400000"
+    value: '86400000'
