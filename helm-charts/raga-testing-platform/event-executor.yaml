@@ -59,17 +59,17 @@ containerConcurrency:
   enable: false
   limit: 3
 
-env:
-  - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: backend
-        key: AWS_ACCESS_KEY_ID
-  - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: backend
-        key: AWS_SECRET_ACCESS_KEY
+# env:
+#   - name: AWS_ACCESS_KEY_ID
+#     valueFrom:
+#       secretKeyRef:
+#         name: backend
+#         key: AWS_ACCESS_KEY_ID
+#   - name: AWS_SECRET_ACCESS_KEY
+#     valueFrom:
+#       secretKeyRef:
+#         name: backend
+#         key: AWS_SECRET_ACCESS_KEY
   - name: IMAGE_UPLOAD_S3_URL_PREFIX
     valueFrom: 
       secretKeyRef:
