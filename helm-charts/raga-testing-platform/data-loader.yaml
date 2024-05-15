@@ -68,16 +68,13 @@ env:
       secretKeyRef:
         name: data-loader
         key: ELASTIC_SEARCH_PASSWORD
-  - name: ELASTIC_SEARCH_USERNAME
-    valueFrom:
-      secretKeyRef:
-        name: data-loader
-        key: ELASTIC_SEARCH_USERNAME
   - name: elasticHost
     valueFrom:
       secretKeyRef:
         name: data-loader
         key: elasticHost
+  - name: ELASTIC_SEARCH_USERNAME
+    value: 'elastic'
   - name: elasticPort
     value: '9200'
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
