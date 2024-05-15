@@ -12,7 +12,7 @@ fullnameOverride: "model-executor"
 
 serviceAccount:
   create: true
-  name: "raga-models"
+  name: "raga-role"
   annotations: {}
 
 broker:
