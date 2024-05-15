@@ -59,7 +59,7 @@ containerConcurrency:
   enable: false
   limit: 3
 
-# env:
+env:
 #   - name: AWS_ACCESS_KEY_ID
 #     valueFrom:
 #       secretKeyRef:
