@@ -60,11 +60,6 @@ containerConcurrency:
   limit: 1
 
 env:
-  - name: MYSQL_DATABASE
-    valueFrom: 
-      secretKeyRef:
-        name: status-updater
-        key: MYSQL_DATABASE
   - name: MYSQL_HOST
     valueFrom: 
       secretKeyRef:
@@ -80,6 +75,8 @@ env:
       secretKeyRef:
         name: status-updater
         key: MYSQL_USERNAME
+  - name: MYSQL_DATABASE
+    value: 'testing_platform'
   - name: PYTHON_OPERATOR_KAFKA_BROKER_URL
     value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator'
   - name: DATA_LOADER_KAFKA_BROKER_URL
