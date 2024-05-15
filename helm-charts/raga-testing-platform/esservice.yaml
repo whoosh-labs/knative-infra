@@ -71,10 +71,7 @@ env:
         name: esservice
         key: ELASTIC_SEARCH_PASSWORD
   - name: ELASTIC_SEARCH_USERNAME
-    valueFrom:
-      secretKeyRef:
-        name: esservice
-        key: ELASTIC_SEARCH_USERNAME
+    value: 'elastic'
   - name: ENV_TYPE
     value: 'devel'
   - name: LOGGING_LEVEL
