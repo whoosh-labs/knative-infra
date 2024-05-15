@@ -12,7 +12,7 @@ fullnameOverride: "faster-rcnn-model"
 
 serviceAccount:
   create: true
-  name: "raga-models"
+  name: "raga-role"
   annotations: {}
 
 broker:
