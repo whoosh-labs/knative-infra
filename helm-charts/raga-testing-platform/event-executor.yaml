@@ -76,10 +76,7 @@ env:
         name: event-executor
         key: IMAGE_UPLOAD_S3_URL_PREFIX
   - name: STATUS_UPDATER_CONCURRENCY
-    valueFrom: 
-      secretKeyRef:
-        name: event-executor
-        key: STATUS_UPDATER_CONCURRENCY
+    value: '5'
   - name: DATA_LOADER_CONCURRENCY
     value: '10'
   - name: DATA_LOADER_KAFKA_BROKER_URL
