@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define variables
-db_name="test"
+db_name="testing_platform"
 sql_file="src/main/resources/db/migration/base_migration_import.sql"
 envname="prod"
 maven_version="3.6.3"
@@ -85,15 +85,16 @@ cd testing-platform-backend
 git checkout production
 mvn clean install -DskipTests
 
-# Connect to MySQL and create database
-echo "Creating MySQL database '$db_name'..."
-mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" -e "CREATE DATABASE IF NOT EXISTS $db_name;" || { echo "Error: Failed to create database"; exit 1; }
-
 # Check if SQL file exists
 if [ ! -f "$sql_file" ]; then
     echo "Error: $sql_file not found in the repository"
     exit 1
 fi
+
+# Connect to MySQL and create database
+echo "Creating MySQL database '$db_name'..."
+sed -i -E 's/^(SET.*)/-- \1/' $sql_file
+mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
 
 echo "Executing $sql_file in '$db_name' database..."
 mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" $db_name < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
