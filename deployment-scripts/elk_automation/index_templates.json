@@ -1,0 +1,78 @@
+{
+  "healthcheck-logs-template": {
+    "priority": 9,
+    "template": {
+      "settings": {
+        "index": {
+          "lifecycle": {
+            "name": "healthcheck-logs-policy"
+          }
+        }
+      }
+    },
+    "index_patterns": [
+      "*-healthcheck-*"
+    ],
+    "data_stream": {
+      "hidden": false,
+      "allow_custom_routing": false
+    },
+    "composed_of": []
+  },
+  "app-logs-template": {
+    "priority": 10,
+    "template": {
+      "settings": {
+        "index": {
+          "lifecycle": {
+            "name": "app-logs-policy"
+          }
+        }
+      }
+    },
+    "index_patterns": [
+      "*-app-*"
+    ],
+    "data_stream": {
+      "hidden": false,
+      "allow_custom_routing": false
+    },
+    "composed_of": []
+  },
+  "cluster-logs-template": {
+    "priority": 11,
+    "template": {
+      "settings": {
+        "index": {
+          "lifecycle": {
+            "name": "cluster-logs-policy"
+          }
+        }
+      }
+    },
+    "index_patterns": [
+      "*-clusterlogs-*"
+    ],
+    "data_stream": {
+      "hidden": false,
+      "allow_custom_routing": false
+    },
+    "composed_of": []
+  },
+  "elastalert-logs-template": {
+    "priority": 12,
+    "template": {
+      "settings": {
+        "index": {
+          "lifecycle": {
+            "name": "elastalert-logs-policy"
+          }
+        }
+      }
+    },
+    "index_patterns": [
+      "elastalert", "elastalert_*"
+    ],
+    "composed_of": []
+  }
+}
