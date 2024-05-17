@@ -42,7 +42,7 @@ fi
 echo "Token successfully copied to $NODE2_IP:$remote_token_path"
 
 ssh -i "$temp_key_file" "ec2-user@$NODE2_IP" << EOF
-yes y | sudo /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token \$(cat $remote_token_path) # TODO: Need to test this
+yes y | sudo /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token $(cat $remote_token_path) # TODO: Need to test this
 if [ $? -ne 0 ]; then
     echo "Error: Failed to reconfigure Elasticsearch node"
     exit 1
