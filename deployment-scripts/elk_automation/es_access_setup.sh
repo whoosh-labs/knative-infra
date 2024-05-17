@@ -60,11 +60,15 @@ EOF
 ssh -o "StrictHostKeyChecking no" -i "$temp_key_file" "$SSH_USERNAME@$NODE1_IP" << EOF
 printf '$ES_PASSWORD\n$ES_PASSWORD' | sudo  /usr/share/elasticsearch/bin/elasticsearch-reset-password -u $ES_USERNAME -bi
 sudo sed -i "/^#*network.host:/c\network.host: 0.0.0.0" /etc/elasticsearch/elasticsearch.yml
+sudo yq eval '.xpack.security.http.ssl.enabled = false' -i /etc/elasticsearch/elasticsearch.yml
+sudo chown root:elasticsearch /etc/elasticsearch/elasticsearch.yml
 sudo systemctl restart elasticsearch.service
 EOF
 
 ssh -o "StrictHostKeyChecking no" -i "$temp_key_file" "$SSH_USERNAME@$NODE2_IP" << EOF
 sudo sed -i "/^#*network.host:/c\network.host: 0.0.0.0" /etc/elasticsearch/elasticsearch.yml
+sudo yq eval '.xpack.security.http.ssl.enabled = false' -i /etc/elasticsearch/elasticsearch.yml
+sudo chown root:elasticsearch /etc/elasticsearch/elasticsearch.yml
 sudo systemctl restart elasticsearch.service
 EOF
 
