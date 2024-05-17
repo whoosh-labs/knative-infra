@@ -18,7 +18,7 @@ ES_USERNAME="elastic"
 
 # Create a temporary file to store the private key
 temp_key_file=$(mktemp)
-echo "$SSH_PRIVATE_KEY" > "$temp_key_file"
+echo -e $SSH_PRIVATE_KEY > "$temp_key_file"
 chmod 600 "$temp_key_file"
 
 remote_token_path="/tmp/token"
@@ -64,7 +64,6 @@ sudo systemctl restart elasticsearch.service
 EOF
 
 ssh -i "$temp_key_file" "$SSH_USERNAME@$NODE2_IP" << EOF
-printf '$ES_PASSWORD\n$ES_PASSWORD' | sudo  /usr/share/elasticsearch/bin/elasticsearch-reset-password -u $ES_USERNAME -bi
 sudo sed -i "/^#*network.host:/c\network.host: 0.0.0.0" /etc/elasticsearch/elasticsearch.yml
 sudo systemctl restart elasticsearch.service
 EOF
