@@ -11,10 +11,12 @@ SSH_PRIVATE_KEY=$1
 ES_PASSWORD=$2
 NODE1_IP=$3
 NODE2_IP=$4
+GIT_PAT=$5
 
 # Variables
 SSH_USERNAME="ubuntu"
 ES_USERNAME="elastic"
+TF_TEMPLATE_FILE="whoosh-labs/esservices/main/src/main/resources/tf_template.txt"
 
 # Create a temporary file to store the private key
 temp_key_file=$(mktemp)
@@ -71,6 +73,20 @@ sudo yq eval '.xpack.security.http.ssl.enabled = false' -i /etc/elasticsearch/el
 sudo chown root:elasticsearch /etc/elasticsearch/elasticsearch.yml
 sudo systemctl restart elasticsearch.service
 EOF
+
+KIBANA_BEARER_TOKEN=$(curl -s http://$NODE1_IP:9200/_security/enroll/kibana -u $ES_USERNAME:$ES_PASSWORD | jq '.token.value' | tr -d '"')
+ssh -o "StrictHostKeyChecking no" -i "$temp_key_file" "$SSH_USERNAME@$NODE1_IP" << EOF
+sudo sed -i '/^#*server.host:/c\\server.host: "0.0.0.0"' /etc/kibana/kibana.yml
+sudo sed -i -e '/^#* *elasticsearch\.serviceAccountToken:/c\elasticsearch.serviceAccountToken: "'"$KIBANA_BEARER_TOKEN"'"' /etc/kibana/kibana.yml
+sudo systemctl restart kibana.service
+EOF
+
+curl -sH "Authorization: token $GIT_PAT" -H "Accept: application/vnd.github.v3.raw" -O -L "https://raw.githubusercontent.com/$TF_TEMPLATE_FILE"
+TF_TEMPLATE=$(cat tf_template.txt)
+request_type=$(echo "$TF_TEMPLATE" | awk 'NR==1 {print $1}')
+request_path=$(echo "$TF_TEMPLATE" | awk 'NR==1 {print $2}')
+query=$(echo "$TF_TEMPLATE" | awk 'NR>1' | awk '{$1=$1};1')
+curl -X $request_type "$NODE1_IP:9200/$request_path" -H "Content-Type: application/json" -d "$query" -u $ES_USERNAME:$ES_PASSWORD
 
 # Clean up the temporary private key file
 rm -f "$temp_key_file"
