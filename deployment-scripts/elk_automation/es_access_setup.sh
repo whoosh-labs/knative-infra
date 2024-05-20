@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check if the correct number of arguments are provided
-if [ "$#" -ne 4 ]; then
-    echo "Usage: $0 SSH_PRIVATE_KEY ES_PASSWORD NODE1_IP NODE2_IP"
+if [ "$#" -ne 5 ]; then
+    echo "Usage: $0 SSH_PRIVATE_KEY ES_PASSWORD NODE1_IP NODE2_IP GIT_PAT"
     exit 1
 fi
 
