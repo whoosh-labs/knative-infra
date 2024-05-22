@@ -4987,6 +4987,7 @@ metadata:
   annotations:
     knative.dev/example-checksum: "e7973912"
 data:
+  max-revision-timeout-seconds: "3600"
   _example: |
     ################################
     #                              #
@@ -5302,6 +5303,9 @@ metadata:
   annotations:
     knative.dev/example-checksum: "f2fc138e"
 data:
+  kubernetes.podspec-persistent-volume-claim: enabled
+  kubernetes.podspec-persistent-volume-write: enabled
+  kubernetes.podspec-tolerations: enabled
   _example: |-
     ################################
     #                              #
