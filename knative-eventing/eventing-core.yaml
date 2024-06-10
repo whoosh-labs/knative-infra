@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: knative-eventing
-  labels:
-    app.kubernetes.io/version: "1.12.2"
-    app.kubernetes.io/name: knative-eventing
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: knative-eventing
+#   labels:
+#     app.kubernetes.io/version: "1.12.2"
+#     app.kubernetes.io/name: knative-eventing
 
 ---
 # Copyright 2018 The Knative Authors
