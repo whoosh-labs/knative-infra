@@ -34,7 +34,7 @@ resources:
     memory: 4500M
 
 autoscaling:
-  minReplicas: 1
+  minReplicas: 0
   maxReplicas: 3
 
 livenessProbe:
