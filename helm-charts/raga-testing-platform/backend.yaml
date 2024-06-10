@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/backend-knative-release"
-  tag: "11-03a224e"
+  tag: "20-6ba580b"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
