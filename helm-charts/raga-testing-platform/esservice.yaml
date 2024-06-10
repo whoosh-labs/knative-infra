@@ -60,23 +60,7 @@ containerConcurrency:
   limit: 1
 
 env:
-  - name: ELASTIC_SEARCH_BASE_URL
-    valueFrom: 
-      secretKeyRef:
-        name: esservice
-        key: ELASTIC_SEARCH_BASE_URL
-  - name: ELASTIC_SEARCH_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: esservice
-        key: ELASTIC_SEARCH_PASSWORD
-  - name: ELASTIC_SEARCH_USERNAME
-    value: 'elastic'
-  - name: ENV_TYPE
-    value: 'devel'
-  - name: LOGGING_LEVEL
-    value: 'INFO'
-  - name: S3_IMAGE_BASE_URL
-    value: 'https://ragaaimedia.s3.ap-south-1.amazonaws.com/'
+  - name: REDIS_PORT
+    value: '6379'
   - name: REDIS_URL
-    value: 'redis://redis-master.redis.svc.cluster.local:6379'
+    value: 'redis-master.redis.svc.cluster.local'
