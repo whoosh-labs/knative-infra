@@ -63,21 +63,7 @@ containerConcurrency:
   limit: 3
 
 env:
-  - name: ELASTIC_SEARCH_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: data-loader
-        key: ELASTIC_SEARCH_PASSWORD
-  - name: elasticHost
-    valueFrom:
-      secretKeyRef:
-        name: data-loader
-        key: elasticHost
-  - name: ELASTIC_SEARCH_USERNAME
-    value: 'elastic'
-  - name: elasticPort
-    value: '9200'
-  - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater'
-  - name: SERVICE_INVOCATION_METHOD
-    value: 'knative'
+  - name: REDIS_PORT
+    value: '6379'
+  - name: REDIS_URL
+    value: 'redis-master.redis.svc.cluster.local'

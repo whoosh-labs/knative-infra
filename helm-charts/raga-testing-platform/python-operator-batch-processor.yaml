@@ -62,35 +62,9 @@ containerConcurrency:
   limit: 3
 
 env:
-  - name: ELASTIC_PASSWORD
-    valueFrom: 
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: ELASTIC_PASSWORD
-  - name: ELASTIC_URL
-    valueFrom: 
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: ELASTIC_URL
-  - name: S3_BUCKET
-    valueFrom: 
-      secretKeyRef:
-        name: python-operator-batch-processor
-        key: S3_BUCKET
-  - name: LM_EXECUTER_QUEUE
-    value: 'NA as it is a Knative environment'
-  - name: LM_MAX_CONCURRENCY
-    value: 20
-  - name: SQS_ENDPOINT_URL
-    value: 'NA as it is a Knative environment'
+  - name: REDIS_PORT
+    value: '6379'
+  - name: REDIS_URL
+    value: 'redis-master.redis.svc.cluster.local'
   - name: NUMBA_CACHE_DIR
     value: '/tmp'
-  - name: STATUS_UPDATER_QUEUE
-    value: 'NA as it is a Knative environment'
-  - name: STATUS_UPDATER_QUEUE_URL
-    value: 'NA as it is a Knative environment'
-  # - name: SERVICE_INVOCATION_METHOD
-  #   valueFrom: 
-  #     secretKeyRef:
-  #       name: python-operator-batch-processor
-  #       key: SERVICE_INVOCATION_METHOD

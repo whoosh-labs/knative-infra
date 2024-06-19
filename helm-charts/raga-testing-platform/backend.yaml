@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/backend-knative-release"
-  tag: "11-03a224e"
+  tag: "20-6ba580b"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
@@ -163,7 +163,11 @@ env:
   - name: PROPERTY_MANAGER_SERVICE_URL
     value: 'http://property-manager-client.raga.svc.cluster.local'
   - name: REDIS_URL
-    value: 'redis://redis-master.redis.svc.cluster.local:6379'
+    value: 'redis-master.redis.svc.cluster.local'
+  - name: REDIS_PORT
+    value: '6379'
+  - name: PROPERTY_MANAGER_LOADER_URL
+    value: 'http://property-manager-client.raga.svc.cluster.local'
   - name: CLOUD_ENVIRONMENT
     value: 'AWS'
   - name: AZURE_CONNECTION_STRING
