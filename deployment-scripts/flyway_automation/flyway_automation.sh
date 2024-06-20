@@ -4,7 +4,7 @@
 db_name="testing_platform"
 sql_file="src/main/resources/db/migration/base_migration_import.sql"
 envname="prod"
-maven_version="3.9.6"
+maven_version="3.6.3-r1"
 
 # Check if required arguments are provided
 if [ "$#" -ne 4 ]; then
@@ -34,6 +34,9 @@ else
     exit 1
   fi
 fi
+
+# Install wget
+apk add --no-cache wget
 
 # Maven Installation if required
 if ! command -v mvn &>/dev/null; then
