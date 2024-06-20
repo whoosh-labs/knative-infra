@@ -36,14 +36,16 @@ else
 fi
 
 # Install wget
-apk add --no-cache wget
+apk add --no-cache wget tar
 
 # Maven Installation if required
 if ! command -v mvn &>/dev/null; then
     echo "Maven is not installed. Installing..."
 
-    # Install Maven
-    apk add --no-cache "maven=$maven_version"
+    # Download and install Maven 3.6.3
+    mkdir -p /usr/share/maven
+    wget -qO- "https://archive.apache.org/dist/maven/maven-3/$maven_version/binaries/apache-maven-$maven_version-bin.tar.gz" | tar zxvf - -C /usr/share/maven --strip-components=1
+    ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
 
     # Verify installation
     if ! command -v mvn &>/dev/null; then
