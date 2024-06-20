@@ -14,8 +14,8 @@ fi
 
 # Assign arguments to variables
 git_pat=$1
-root_user=$2
-root_password=$3
+mysql_user=$2
+mysql_password=$3
 mysql_url=$4
 
 # Check if Java 17 is installed
@@ -80,25 +80,25 @@ if [ ! -f "$sql_file" ]; then
     exit 1
 fi
 
-echo "MySQL User: $root_user"
-echo "MySQL Password: $root_password"
+echo "MySQL User: $mysql_user"
+echo "MySQL Password: $mysql_password"
 echo "MySQL URL: $mysql_url"
 
 # Debugging: Test MySQL connection
 echo "Testing MySQL connection..."
-mysql -u"$root_user" -p"$root_password" -h "$mysql_url" -P 3306 -e "SHOW DATABASES;" || { echo "Error: Unable to connect to MySQL"; exit 1; }
+mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" -P 3306 -e "SHOW DATABASES;" || { echo "Error: Unable to connect to MySQL"; exit 1; }
 
 # Connect to MySQL and create database
 echo "Creating MySQL database '$db_name'..."
 sed -i -E 's/^(SET.*)/-- \1/' "$sql_file"
-mysql -u"$root_user" -p"$root_password" -h "$mysql_url" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
+mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
 
 echo "Executing $sql_file in '$db_name' database..."
-mysql -u"$root_user" -p"$root_password" -h "$mysql_url" "$db_name" < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
+mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" "$db_name" < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
 
 # Write MySQL connection details to env file
-echo "MYSQL_USERNAME=${root_user}" >> "${envname}.db.ini"
-echo "MYSQL_PASSWORD=${root_password}" >> "${envname}.db.ini"
+echo "MYSQL_USERNAME=${mysql_user}" >> "${envname}.db.ini"
+echo "MYSQL_PASSWORD=${mysql_password}" >> "${envname}.db.ini"
 echo "MYSQL_URL=${mysql_url}:3306" >> "${envname}.db.ini"
 
 bash flyway_migrate.sh --env "${envname}"
