@@ -80,6 +80,10 @@ if [ ! -f "$sql_file" ]; then
     exit 1
 fi
 
+echo "MySQL User: $root_user"
+echo "MySQL Password: $root_password"
+echo "MySQL URL: $mysql_url"
+
 # Debugging: Test MySQL connection
 echo "Testing MySQL connection..."
 mysql -u"$root_user" -p"$root_password" -h "$mysql_url" -P 3306 -e "SHOW DATABASES;" || { echo "Error: Unable to connect to MySQL"; exit 1; }
