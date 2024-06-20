@@ -13,10 +13,16 @@ if [ "$#" -ne 4 ]; then
 fi
 
 # Assign arguments to variables
-git_pat=$1
-root_user=$2
-root_password=$3
-mysql_url=$4
+GIT_PAT=$1
+ROOT_USER=$2
+ROOT_PASSWORD=$3
+MYSQL_URL=$4
+
+# Debug prints
+echo "GIT_PAT: $GIT_PAT"
+echo "ROOT_USER: $ROOT_USER"
+echo "ROOT_PASSWORD: $ROOT_PASSWORD"
+echo "MYSQL_URL: $MYSQL_URL"
 
 # Check if Java 17 is installed
 if command -v java &>/dev/null && [[ $(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d '.' -f 1) == "17" ]]; then
@@ -83,15 +89,15 @@ fi
 # Connect to MySQL and create database
 echo "Creating MySQL database '$db_name'..."
 sed -i -E 's/^(SET.*)/-- \1/' "$sql_file"
-mysql -u"$root_user" -p"$root_password" -h "$mysql_url" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
+mysql -h "$MYSQL_URL" -P 3306 -u "$ROOT_USER" -p"$ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
 
 echo "Executing $sql_file in '$db_name' database..."
-mysql -u"$root_user" -p"$root_password" -h "$mysql_url" "$db_name" < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
+mysql -h "$MYSQL_URL" -P 3306 -u "$ROOT_USER" -p"$ROOT_PASSWORD" "$db_name" < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
 
 # Write MySQL connection details to env file
-echo "MYSQL_USERNAME=${root_user}" >> "${envname}.db.ini"
-echo "MYSQL_PASSWORD=${root_password}" >> "${envname}.db.ini"
-echo "MYSQL_URL=${mysql_url}:3306" >> "${envname}.db.ini"
+echo "MYSQL_USERNAME=${ROOT_USER}" >> "${envname}.db.ini"
+echo "MYSQL_PASSWORD=${ROOT_PASSWORD}" >> "${envname}.db.ini"
+echo "MYSQL_URL=${MYSQL_URL}:3306" >> "${envname}.db.ini"
 
 bash flyway_migrate.sh --env "${envname}"
 
