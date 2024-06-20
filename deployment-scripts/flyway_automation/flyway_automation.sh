@@ -80,6 +80,10 @@ if [ ! -f "$sql_file" ]; then
     exit 1
 fi
 
+# Debugging: Test MySQL connection
+echo "Testing MySQL connection..."
+mysql -u"$root_user" -p"$root_password" -h "$mysql_url" -P 3306 -e "SHOW DATABASES;" || { echo "Error: Unable to connect to MySQL"; exit 1; }
+
 # Connect to MySQL and create database
 echo "Creating MySQL database '$db_name'..."
 sed -i -E 's/^(SET.*)/-- \1/' "$sql_file"
