@@ -40,7 +40,7 @@ if ! command -v mvn &>/dev/null; then
     echo "Maven is not installed. Installing..."
 
     # Install Maven
-    apk add --no-cache maven="$maven_version"
+    apk add --no-cache "maven=$maven_version"
 
     # Verify installation
     if ! command -v mvn &>/dev/null; then
