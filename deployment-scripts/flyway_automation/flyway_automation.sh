@@ -4,7 +4,7 @@
 db_name="testing_platform"
 sql_file="src/main/resources/db/migration/base_migration_import.sql"
 envname="prod"
-maven_version="3.6.3"
+maven_version="3.9.6"
 
 # Check if required arguments are provided
 if [ "$#" -ne 4 ]; then
