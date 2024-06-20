@@ -13,16 +13,10 @@ if [ "$#" -ne 4 ]; then
 fi
 
 # Assign arguments to variables
-GIT_PAT=$1
-ROOT_USER=$2
-ROOT_PASSWORD=$3
-MYSQL_URL=$4
-
-# Debug prints
-echo "GIT_PAT: $GIT_PAT"
-echo "ROOT_USER: $ROOT_USER"
-echo "ROOT_PASSWORD: $ROOT_PASSWORD"
-echo "MYSQL_URL: $MYSQL_URL"
+git_pat=$1
+mysql_user=$2
+mysql_password=$3
+mysql_url=$4
 
 # Check if Java 17 is installed
 if command -v java &>/dev/null && [[ $(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | cut -d '.' -f 1) == "17" ]]; then
@@ -63,21 +57,21 @@ fi
 # Install property-manager-java-services
 git clone "https://$git_pat@github.com/whoosh-labs/property-manager-java-services.git"
 cd property-manager-java-services
-git checkout main
+git checkout production
 mvn clean install -DskipTests
 cd ..
 
 # Install java-storage-library
 git clone "https://$git_pat@github.com/whoosh-labs/java-storage-library.git"
 cd java-storage-library
-git checkout main
+git checkout production
 mvn clean install -U
 cd ..
 
 # Install testing-platform-backend
 git clone "https://$git_pat@github.com/whoosh-labs/testing-platform-backend.git"
 cd testing-platform-backend
-git checkout main
+git checkout production
 mvn clean install -DskipTests
 
 # Check if SQL file exists
@@ -89,15 +83,15 @@ fi
 # Connect to MySQL and create database
 echo "Creating MySQL database '$db_name'..."
 sed -i -E 's/^(SET.*)/-- \1/' "$sql_file"
-mysql -h "$MYSQL_URL" -P 3306 -u "$ROOT_USER" -p"$ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
+mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
 
 echo "Executing $sql_file in '$db_name' database..."
-mysql -h "$MYSQL_URL" -P 3306 -u "$ROOT_USER" -p"$ROOT_PASSWORD" "$db_name" < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
+mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" "$db_name" < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
 
 # Write MySQL connection details to env file
-echo "MYSQL_USERNAME=${ROOT_USER}" >> "${envname}.db.ini"
-echo "MYSQL_PASSWORD=${ROOT_PASSWORD}" >> "${envname}.db.ini"
-echo "MYSQL_URL=${MYSQL_URL}:3306" >> "${envname}.db.ini"
+echo "MYSQL_USERNAME=${mysql_user}" >> "${envname}.db.ini"
+echo "MYSQL_PASSWORD=${mysql_password}" >> "${envname}.db.ini"
+echo "MYSQL_URL=${mysql_url}:3306" >> "${envname}.db.ini"
 
 bash flyway_migrate.sh --env "${envname}"
 
