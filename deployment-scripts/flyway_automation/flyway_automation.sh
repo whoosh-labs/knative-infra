@@ -57,21 +57,21 @@ fi
 # Install property-manager-java-services
 git clone "https://$git_pat@github.com/whoosh-labs/property-manager-java-services.git"
 cd property-manager-java-services
-git checkout production
+git checkout main
 mvn clean install -DskipTests
 cd ..
 
 # Install java-storage-library
 git clone "https://$git_pat@github.com/whoosh-labs/java-storage-library.git"
 cd java-storage-library
-git checkout production
+git checkout main
 mvn clean install -U
 cd ..
 
 # Install testing-platform-backend
 git clone "https://$git_pat@github.com/whoosh-labs/testing-platform-backend.git"
 cd testing-platform-backend
-git checkout production
+git checkout main
 mvn clean install -DskipTests
 
 # Check if SQL file exists
