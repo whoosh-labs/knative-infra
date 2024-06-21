@@ -80,6 +80,8 @@ if [ ! -f "$sql_file" ]; then
     exit 1
 fi
 
+mysql --version
+
 echo "MySQL User: $mysql_user"
 echo "MySQL Password: $mysql_password"
 echo "MySQL URL: $mysql_url"
