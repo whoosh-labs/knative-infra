@@ -86,7 +86,7 @@ echo "MySQL URL: $mysql_url"
 
 # Debugging: Test MySQL connection
 echo "Testing MySQL connection..."
-mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" -P 3306 -e "SHOW DATABASES;" || { echo "Error: Unable to connect to MySQL"; exit 1; }
+mysql -u "$mysql_user" -p"$mysql_password" -h "$mysql_url" -e "SHOW DATABASES;" || { echo "Error: Unable to connect to MySQL"; exit 1; }
 
 # Connect to MySQL and create database
 echo "Creating MySQL database '$db_name'..."
