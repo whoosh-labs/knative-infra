@@ -91,10 +91,10 @@ mysql -u "$mysql_user" -p"$mysql_password" -h "$mysql_url" -e "SHOW DATABASES;" 
 # Connect to MySQL and create database
 echo "Creating MySQL database '$db_name'..."
 sed -i -E 's/^(SET.*)/-- \1/' "$sql_file"
-mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
+mysql -u "$mysql_user" -p"$mysql_password" -h "$mysql_url" -e "CREATE DATABASE IF NOT EXISTS $db_name; USE $db_name; source $sql_file;" || { echo "Error: Failed to create database"; exit 1; }
 
 echo "Executing $sql_file in '$db_name' database..."
-mysql -u"$mysql_user" -p"$mysql_password" -h "$mysql_url" "$db_name" < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
+mysql -u "$mysql_user" -p"$mysql_password" -h "$mysql_url" "$db_name" < "$sql_file" || { echo "Error: Failed to execute SQL file"; exit 1; }
 
 # Write MySQL connection details to env file
 echo "MYSQL_USERNAME=${mysql_user}" >> "${envname}.db.ini"
