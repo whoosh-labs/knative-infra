@@ -10002,25 +10002,25 @@ metadata:
     istio.io/rev: default
     install.operator.istio.io/owning-resource: unknown
     operator.istio.io/component: "IngressGateways"
----
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
-metadata:
-  name: istio-internal-ingressgateway
-  namespace: istio-system
-  labels:
-    app: istio-internal-ingressgateway
-    istio: internal-ingressgateway
-    release: istio
-    istio.io/rev: default
-    install.operator.istio.io/owning-resource: unknown
-    operator.istio.io/component: "IngressGateways"
-spec:
-  minAvailable: 1
-  selector:
-    matchLabels:
-      app: istio-internal-ingressgateway
-      istio: internal-ingressgateway
+# ---
+# apiVersion: policy/v1beta1
+# kind: PodDisruptionBudget
+# metadata:
+#   name: istio-internal-ingressgateway
+#   namespace: istio-system
+#   labels:
+#     app: istio-internal-ingressgateway
+#     istio: internal-ingressgateway
+#     release: istio
+#     istio.io/rev: default
+#     install.operator.istio.io/owning-resource: unknown
+#     operator.istio.io/component: "IngressGateways"
+# spec:
+#   minAvailable: 1
+#   selector:
+#     matchLabels:
+#       app: istio-internal-ingressgateway
+#       istio: internal-ingressgateway
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -10054,31 +10054,31 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: istio-internal-ingressgateway-service-account
----
-apiVersion: autoscaling/v2beta1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: istio-internal-ingressgateway
-  namespace: istio-system
-  labels:
-    app: istio-internal-ingressgateway
-    istio: internal-ingressgateway
-    release: istio
-    istio.io/rev: default
-    install.operator.istio.io/owning-resource: unknown
-    operator.istio.io/component: "IngressGateways"
-spec:
-  maxReplicas: 5
-  minReplicas: 1
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: istio-internal-ingressgateway
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        targetAverageUtilization: 80
+# ---
+# apiVersion: autoscaling/v2beta1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: istio-internal-ingressgateway
+#   namespace: istio-system
+#   labels:
+#     app: istio-internal-ingressgateway
+#     istio: internal-ingressgateway
+#     release: istio
+#     istio.io/rev: default
+#     install.operator.istio.io/owning-resource: unknown
+#     operator.istio.io/component: "IngressGateways"
+# spec:
+#   maxReplicas: 5
+#   minReplicas: 1
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: istio-internal-ingressgateway
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         targetAverageUtilization: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
