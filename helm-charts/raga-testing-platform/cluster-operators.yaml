@@ -1,12 +1,12 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/knative-poc"
-  tag: "umap-operators-2"
+  tag: "cluster-operators-10"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true
   name: "regcred"
-fullnameOverride: "umap-operators"
+fullnameOverride: "cluster-operators"
 serviceAccount:
   create: true
   name: "raga-role"
@@ -18,7 +18,6 @@ trigger:
   create: true
 service:
   port: 5000
-DisablePublicAccess: true
 resources:
   limits:
     cpu: 1
@@ -29,7 +28,6 @@ resources:
 autoscaling:
   minReplicas: 0
   maxReplicas: 3
-  ScaleDownDelay: 1m
 livenessProbe:
   httpGet:
     path: /api/healthcheck
@@ -50,26 +48,44 @@ DeployOnARM: true
 domainmapping:
   create: false
 env:
-  - name: REDIS_PORT
-    value: "6379"
-  - name: REDIS_URL
-    value: "redis-master.redis.svc.cluster.local"
-  - name: SERVICE_INVOCATION_METHOD
-    value: "knative"
-  - name: LM_EXECUTER_QUEUE
-    value: "NA"
-  - name: LM_MAX_CONCURRENCY
-    value: "knative"
-  - name: NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA
-    value: "20"
-  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE
-    value: "NA"
-  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL
-    value: "NA"
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: cluster-operators
+        key: ELASTIC_PASSWORD
   - name: S3_BUCKET
-    value: "NA"
+    valueFrom:
+      secretKeyRef:
+        name: cluster-operators
+        key: S3_BUCKET
+  - name: LM_EXECUTER_QUEUE
+    value: "raga-dev-event-executor-input-queue.fifo"
+  - name: LM_MAX_CONCURRENCY
+    value: "20"
+  - name: NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA
+    value: "10"
+  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE
+    value: "raga-dev-python-operators-batch-processor-input-queue.fifo"
+  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL
+    value: "https://sqs.us-east1.amazonaws.com/514856084243/raga-dev-python-operators-batch-processor-input-queue.fifo"
+  - name: ELASTIC_URL
+    value: "http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200"
+  - name: NUMBA_CACHE_DIR
+    value: "/tmp"
+  - name: ELASTIC_USERNAME
+    value: "elastic"
+  - name: LM_EXECUTER_QUEUE
+    value: "raga-dev-event-executor-input-queue.fifo"
+  - name: SQS_ENDPOINT_URL
+    value: "https://sqs.us-east1.amazonaws.com"
+  - name: STATUS_UPDATER_QUEUE
+    value: "raga-dev-status-updater-input-queue.fifo"
+  - name: STATUS_UPDATER_QUEUE_URL
+    value: "https://sqs.us-east1.amazonaws.com/514856084243/raga-dev-status-updater-input-queue.fifo"
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
     value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+  - name: SERVICE_INVOCATION_METHOD
+    value: "knative"
   - name: LM_EXECUTOR_KAFKA_BROKER_URL
     value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor"
   - name: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL
@@ -78,3 +94,7 @@ env:
     value: "http://llm-operator.raga-models.svc.cluster.local"
   - name: FASTER_RCNN_MODEL_URL
     value: "http://faster-rcnn-model.raga-models.svc.cluster.local/"
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_URL
+    value: "redis-master.redis.svc.cluster.local"

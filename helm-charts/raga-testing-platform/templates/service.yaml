@@ -38,17 +38,12 @@ spec:
       containerConcurrency: {{ .Values.containerConcurrency.limit }}
       {{- end }}
       timeoutSeconds: {{ .Values.containerConcurrency.timeoutSeconds }}
-      # {{- if .Values.DeployOnARM }}
-      # tolerations:
-      #   - key: "architecture"
-      #     operator: "Equal"
-      #     value: "arm"
-      #     effect: "NoSchedule"
-      # {{- end }}
-      #     #         - Effect: NO_SCHEDULE
-      #     # Key: "architecture"
-      #     # Value: "arm"
-
-
-      # helm install llm-operator -n raga-models --set image.tag=llm-operator-arm-5 --set image.repository=ragaai/models --set imagePullSecrets.create=true ./helm-chart
-      # helm upgrade faster-rcnn -n raga-models --set image.tag=arm4 --set image.repository=514856084243.dkr.ecr.ap-south-1.amazonaws.com/raga-dev-faster-rcnn-model ./helm-chart-rcnn
+      {{- if .Values.DeployOnARM }}
+      tolerations:
+        - key: "arm-node"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      nodeSelector:
+        architecture: "arm"
+      {{- end }}

@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/model-packager-release"
-  tag: "7-901c8b7"
+  tag: "13-cd18b27"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
@@ -12,8 +12,7 @@ fullnameOverride: "model-packager"
 
 serviceAccount:
   create: true
-  name: "raga-role"
-  annotations: {}
+  name: "model-packager"
 
 broker:
   create: true

@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/llm-operator-kantive-release"
-  tag: "8-268c9bf"
+  tag: "11-268c9bf"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
@@ -12,8 +12,7 @@ fullnameOverride: "llm-operator"
 
 serviceAccount:
   create: false
-  name: "raga-models"
-  annotations: {}
+  name: "raga-role"
 
 broker:
   create: false

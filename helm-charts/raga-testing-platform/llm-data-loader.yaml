@@ -1,0 +1,105 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/knative-poc"
+  tag: "llm-data-loader20"
+  pullPolicy: IfNotPresent
+metadata:
+  name: "llm-data-loader"
+  labels:
+    app: "llm-data-loader"
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "llm-data-loader"
+serviceAccount:
+  create: true
+  name: "raga-role"
+broker:
+  create: true
+  dlq: "event-failure-capture"
+  retry: 3
+trigger:
+  create: true
+service:
+  port: 8080
+resources:
+  limits:
+    cpu: 1
+    # memory: 640M
+  requests:
+    cpu: 100m
+    memory: 640M
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+containerConcurrency:
+  enable: true
+  limit: 1
+DeployOnARM: true
+domainmapping:
+  create: false
+env:
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: llm-data-loader
+        key: ELASTIC_PASSWORD
+  - name: S3_BUCKET
+    valueFrom:
+      secretKeyRef:
+        name: llm-data-loader
+        key: S3_BUCKET
+  - name: ELASTIC_URL
+    value: "http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200"
+  - name: ELASTIC_USERNAME
+    value: "elastic"
+  - name: FASTER_RCNN_MODEL_URL
+    value: "http://faster-rcnn-model.raga-models.svc.cluster.local"
+  - name: LLM_DATA_LOADER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/llm-data-loader"
+  - name: LLM_DATA_LOADER_QUEUE_URL
+    value: "NA"
+  - name: LLM_OPERATOR
+    value: "http://llm-operator.raga-models.svc.cluster.local"
+  - name: LM_EXECUTER_QUEUE
+    value: "raga-dev-event-executor-input-queue.fifo"
+  - name: LM_EXECUTOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor"
+  - name: LM_MAX_CONCURRENCY
+    value: "20"
+  - name: NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA
+    value: "10"
+  - name: NUMBA_CACHE_DIR
+    value: "/tmp"
+  - name: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator-batch-processor"
+  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE
+    value: "raga-dev-python-operators-batch-processor-input-queue.fifo"
+  - name: PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL
+    value: "https://sqs.ap-south-1.amazonaws.com/514856084243/raga-dev-python-operators-batch-processor-input-queue.fifo"
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_HOST
+    value: "redis-master.redis.svc.cluster.local"
+  - name: SERVICE_INVOCATION_METHOD
+    value: "knative"
+  - name: SQS_ENDPOINT_URL
+    value: "NA"
+  - name: STATUS_UPDATER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+  - name: STATUS_UPDATER_QUEUE
+    value: "NA"
+  - name: STATUS_UPDATER_QUEUE_URL
+    value: "NA"

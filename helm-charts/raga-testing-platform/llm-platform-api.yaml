@@ -1,12 +1,12 @@
-# Default values for testing-platform-backend.
+# Default values for testing-platform-api.
 image:
   repository: "ragaai/knative-poc"
-  tag: "backend13"
+  tag: "llm-platform-api2"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true
   name: "regcred"
-fullnameOverride: "backend"
+fullnameOverride: "llm-platform-api"
 serviceAccount:
   create: true
   name: "raga-role"
@@ -46,68 +46,68 @@ containerConcurrency:
 DeployOnARM: false
 domainmapping:
   create: true
-  domain: backend.dev4.ragaai.ai
-  service: backend
+  domain: llm-platform.dev4.ragaai.ai
+  service: llm-platform-api
 env:
   - name: API_HOST
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: API_HOST
   - name: AWS_BUCKET_NAME
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: AWS_BUCKET_NAME
   - name: FRONTEND_URL
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: FRONTEND_URL
   - name: GITHUB_CLIENT_ID
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: GITHUB_CLIENT_ID
   - name: GITHUB_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: GITHUB_CLIENT_SECRET
   - name: GOOGLE_CLIENT_ID
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: GOOGLE_CLIENT_ID
   - name: GOOGLE_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: GOOGLE_CLIENT_SECRET
   - name: JWT_SECRET
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: JWT_SECRET
   - name: MYSQL_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: MYSQL_PASSWORD
   - name: MYSQL_URL
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: MYSQL_URL
   - name: MYSQL_USERNAME
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: MYSQL_USERNAME
   - name: AWS_REGION
     valueFrom:
       secretKeyRef:
-        name: backend
+        name: llm-platform-api
         key: AWS_REGION
   # - name: AWS_ACCESS_KEY_ID
   #   valueFrom:
@@ -132,7 +132,7 @@ env:
   - name: DEFAULT_DATA_LOADER_ARN
     value: 'NA as it is a Knative environment'
   - name: ES_URL
-    value: 'http://esservice.raga.svc.cluster.local'
+    value: 'http://llm-platform-esservice.raga.svc.cluster.local'
   - name: OOD_ARN
     value: 'NA as it is a Knative environment'
   - name: PYTHON_OPERATOR_ARN
@@ -142,7 +142,7 @@ env:
   - name: DATA_LOADER_KAFKA_BROKER_URL
     value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader'
   - name: PYTHON_OPERATOR_KAFKA_BROKER_URL
-    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator'
+    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/llm-platform-operators'
   - name: SERVICE_INVOCATION_METHOD
     value: 'knative'
   - name: MAX_FILE_SIZE_IN_GB

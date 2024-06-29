@@ -1,52 +1,49 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/knative-poc"
-  tag: "data-loader9"
+  tag: "llm-platform-operators-7"
   pullPolicy: IfNotPresent
-metadata:
-  name: "data-loader"
-  labels:
-    app: "data-loader"
 imagePullSecrets:
   create: true
   name: "regcred"
-fullnameOverride: "data-loader"
+fullnameOverride: "llm-platform-operators"
 serviceAccount:
   create: true
   name: "raga-role"
 broker:
   create: true
   dlq: "event-failure-capture"
-  retry: 3
+  retry: 0
 trigger:
   create: true
 service:
-  port: 8080
+  port: 5000
 resources:
   limits:
     cpu: 1
-    # memory: 640M
+    memory: 4500M
   requests:
-    cpu: 100m
-    memory: 640M
+    cpu: 1
+    memory: 4500M
 autoscaling:
   minReplicas: 0
   maxReplicas: 3
 livenessProbe:
   httpGet:
     path: /api/healthcheck
-    port: 8080
+    port: 5000
   initialDelaySeconds: 3
   periodSeconds: 3
 readinessProbe:
   httpGet:
     path: /api/healthcheck
-    port: 8080
+    port: 5000
   initialDelaySeconds: 3
   periodSeconds: 3
 containerConcurrency:
   enable: true
   limit: 1
+  timeoutSeconds: 1800
 DeployOnARM: true
 domainmapping:
   create: false
@@ -59,3 +56,13 @@ env:
     value: "knative"
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
     value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+  - name: LM_EXECUTOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor"
+  - name: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator-batch-processor"
+  - name: FASTER_RCNN_MODEL_URL
+    value: "http://faster-rcnn-model.raga-models.svc.cluster.local/"
+  - name: LLM_OPERATOR
+    value: "http://llm-operator.raga-models.svc.cluster.local"
+  - name: FASTER_RCNN_MODEL_URL
+    value: "http://faster-rcnn-model.raga-models.svc.cluster.local/"

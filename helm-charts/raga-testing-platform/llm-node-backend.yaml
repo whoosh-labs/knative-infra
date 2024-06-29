@@ -1,0 +1,81 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/knative-poc"
+  tag: "llm-node-backend14"
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "llm-node-backend"
+serviceAccount:
+  create: true
+  name: "raga-role"
+broker:
+  create: false
+  dlq: "event-failure-capture"
+  retry: 3
+trigger:
+  create: false
+service:
+  port: 8080
+resources:
+  limits:
+    cpu: 2
+    memory: 1024M
+  requests:
+    cpu: 2
+    memory: 1024M
+autoscaling:
+  minReplicas: 1
+  maxReplicas: 3
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+containerConcurrency:
+  enable: false
+  limit: 1
+DeployOnARM: false
+domainmapping:
+  create: true
+  domain: llm-node-backend.dev4.ragaai.ai
+  service: llm-node-backend
+env:
+  - name: DATABASE_HOST
+    valueFrom:
+      secretKeyRef:
+        name: llm-node-backend
+        key: DATABASE_HOST
+  - name: DATABASE_USER
+    valueFrom:
+      secretKeyRef:
+        name: llm-node-backend
+        key: DATABASE_USER
+  - name: DATABASE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: llm-node-backend
+        key: DATABASE_PASSWORD
+  - name: FLOWISE_SECRETKEY_OVERWRITE
+    valueFrom:
+      secretKeyRef:
+        name: llm-node-backend
+        key: FLOWISE_SECRETKEY_OVERWRITE
+  - name: DATABASE_NAME
+    value: "raga_llm"
+  - name: DATABASE_PORT
+    value: "3306"
+  - name: DATABASE_TYPE
+    value: "mysql"
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_URL
+    value: "redis-master.redis.svc.cluster.local"

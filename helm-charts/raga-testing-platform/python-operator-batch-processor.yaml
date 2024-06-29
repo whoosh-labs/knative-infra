@@ -1,44 +1,34 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/python-operator-batch-processor-knative-release"
-  tag: "4-9141e9d"
+  repository: "ragaai/knative-poc"
+  tag: "python-operator-batch-processor4"
   pullPolicy: IfNotPresent
-
 imagePullSecrets:
   create: true
   name: "regcred"
 fullnameOverride: "python-operator-batch-processor"
-
 DisablePublicAccess: true
-
 serviceAccount:
   create: true
   name: "raga-role"
-  annotations: {}
-
 broker:
   create: true
   dlq: "event-failure-capture"
   retry: 3
-
 trigger:
   create: true
-
 service:
   port: 8000
-
-resources: 
+resources:
   limits:
     cpu: 1
     memory: 2500M
   requests:
     cpu: 100m
     memory: 640M
-
 autoscaling:
   minReplicas: 0
   maxReplicas: 3
-
 livenessProbe:
   httpGet:
     path: /api/healthcheck
@@ -51,20 +41,20 @@ readinessProbe:
     port: 8000
   initialDelaySeconds: 3
   periodSeconds: 3
-
-domainmapping:
-  create: false
-  domain: NA
-  service: NA
-
 containerConcurrency:
   enable: true
-  limit: 3
-
+  limit: 1
+DeployOnARM: true
+domainmapping:
+  create: false
 env:
   - name: REDIS_PORT
-    value: '6379'
+    value: "6379"
   - name: REDIS_URL
-    value: 'redis-master.redis.svc.cluster.local'
+    value: "redis-master.redis.svc.cluster.local"
+  - name: SERVICE_INVOCATION_METHOD
+    value: "knative"
+  - name: LM_EXECUTER_QUEUE
+    value: "NA"
   - name: NUMBA_CACHE_DIR
-    value: '/tmp'
+    value: "/tmp"

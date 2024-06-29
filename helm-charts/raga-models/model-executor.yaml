@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/model-executor-release"
-  tag: "8-901c8b7"
+  tag: "14-cd18b27"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
@@ -11,9 +11,8 @@ imagePullSecrets:
 fullnameOverride: "model-executor"
 
 serviceAccount:
-  create: true
+  create: false
   name: "raga-role"
-  annotations: {}
 
 broker:
   create: true
@@ -74,15 +73,3 @@ PVC:
   storage: 50Gi
   csiDriver: "efs.csi.aws.com"
   FilesystemID: "fs-0b2eb5c3625e0aed9"
-
-# env:
-#   - name: AWS_ACCESS_KEY_ID
-#     valueFrom:
-#       secretKeyRef:
-#         name: model-executor
-#         key: AWS_ACCESS_KEY_ID
-#   - name: AWS_SECRET_ACCESS_KEY
-#     valueFrom:
-#       secretKeyRef:
-#         name: model-executor
-#         key: AWS_SECRET_ACCESS_KEY

@@ -1,30 +1,23 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/frontend-knative-release"
-  tag: "11-59731b5"
+  repository: "ragaai/knative-poc"
+  tag: "frontend-5"
   pullPolicy: IfNotPresent
-
 imagePullSecrets:
   create: true
   name: "regcred"
 fullnameOverride: "frontend"
-
 serviceAccount:
-  create: false
+  create: true
   name: "raga-role"
-  annotations: {}
-
 broker:
   create: false
   dlq: "event-failure-capture"
   retry: 3
-
 trigger:
   create: false
-
 service:
   port: 80
-
 resources:
   limits:
     cpu: 2
@@ -32,11 +25,9 @@ resources:
   requests:
     cpu: 100m
     memory: 640M
-
 autoscaling:
   minReplicas: 1
   maxReplicas: 3
-
 livenessProbe:
   httpGet:
     path: /
@@ -49,16 +40,14 @@ readinessProbe:
     port: 80
   initialDelaySeconds: 10
   periodSeconds: 3
-
-domainmapping:
-  create: true
-  domain: dev.ragaai.ai
-  service: frontend
-
 containerConcurrency:
   enable: false
   limit: 1
-
+DeployOnARM: false
+domainmapping:
+  create: true
+  domain: dev4.ragaai.ai
+  service: frontend
 # env:
 #   - name: ELASTIC_SEARCH_BASE_URL
 #     valueFrom: 
