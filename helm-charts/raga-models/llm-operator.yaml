@@ -24,6 +24,9 @@ trigger:
 
 service:
   port: 8000
+  NodePort:
+    create: flase
+    port: 31000
 
 DisablePublicAccess: false
 
