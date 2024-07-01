@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ include "ragaai-helm.fullname" . }}
+  name: {{ include "ragaai-helm.fullname" . }}-deployment
+  namespace: raga
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "ragaai-helm.fullname" . }}
+    spec:
+      containers:
+      - name: user-container
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: IfNotPresent
+        env: {{ .Values.env | toYaml | nindent 10 }}
+        livenessProbe: {{ .Values.livenessProbe | toYaml | nindent 10 }}
+        readinessProbe: {{ .Values.readinessProbe | toYaml | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+          name: user-port
+          protocol: TCP
+          resources: {{ .Values.resources | toYaml | nindent 10 }}

@@ -1,0 +1,62 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/knative-poc"
+  tag: "llm-platform-esservice-2"
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "llm-platform-esservice"
+serviceAccount:
+  create: true
+  name: "raga-role"
+broker:
+  create: false
+  dlq: "event-failure-capture"
+  retry: 3
+trigger:
+  create: false
+service:
+  port: 8083
+  NodePort:
+    create: false
+    port: 31000
+resources:
+  limits:
+    cpu: 1
+    # memory: 640M
+  requests:
+    cpu: 100m
+    memory: 640M
+autoscaling:
+  minReplicas: 1
+  maxReplicas: 3
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8083
+  initialDelaySeconds: 10
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8083
+  initialDelaySeconds: 10
+  periodSeconds: 3
+containerConcurrency:
+  enable: false
+  limit: 1
+DeployOnARM: true
+domainmapping:
+  create: false
+env:
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_URL
+    value: "redis-master.redis.svc.cluster.local"
+  - name: ENV_TYPE
+    value: "devel"
+  - name: LOGGING_LEVEL
+    value: "INFO"
+  - name: S3_IMAGE_BASE_URL
+    value: "https://ragaaimedia.s3.us-east1.amazonaws.com/"

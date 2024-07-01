@@ -1,0 +1,56 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/knative-poc"
+  tag: "property-manager-client2"
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "property-manager-client"
+serviceAccount:
+  create: true
+  name: "raga-role"
+broker:
+  create: true
+  dlq: "event-failure-capture"
+  retry: 3
+trigger:
+  create: true
+service:
+  port: 6000
+  NodePort:
+    create: false
+    port: 31000
+resources:
+  limits:
+    cpu: 100m
+    memory: 640M
+  requests:
+    cpu: 100m
+    memory: 640M
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 1
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 6000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 6000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+containerConcurrency:
+  enable: true
+  limit: 1
+DeployOnARM: true
+domainmapping:
+  create: false
+env:
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_HOST
+    value: "redis-master.redis.svc.cluster.local"

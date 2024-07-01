@@ -1,0 +1,66 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/knative-poc"
+  tag: "status-updater-4"
+  pullPolicy: IfNotPresent
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "status-updater"
+serviceAccount:
+  create: true
+  name: "raga-role"
+broker:
+  create: true
+  dlq: "event-failure-capture"
+  retry: 3
+trigger:
+  create: true
+service:
+  port: 6000
+  NodePort:
+    create: false
+    port: 31000
+resources:
+  limits:
+    cpu: 100m
+    memory: 640M
+  requests:
+    cpu: 100m
+    memory: 640M
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 6000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 6000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+containerConcurrency:
+  enable: true
+  limit: 1
+DeployOnARM: true
+domainmapping:
+  create: false
+env:
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_URL
+    value: "redis-master.redis.svc.cluster.local"
+  - name: SERVICE_INVOCATION_METHOD
+    value: "knative"
+  - name: PYTHON_OPERATOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/llm-platform-operators"
+  - name: DATA_LOADER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader"
+  - name: UMAP_OPERATOR_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/umap-operators"
+  - name: MODEL_PACKAGER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga-models/model-packager"

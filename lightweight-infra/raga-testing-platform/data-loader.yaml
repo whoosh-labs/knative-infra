@@ -1,0 +1,64 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/knative-poc"
+  tag: "data-loader9"
+  pullPolicy: IfNotPresent
+metadata:
+  name: "data-loader"
+  labels:
+    app: "data-loader"
+imagePullSecrets:
+  create: true
+  name: "regcred"
+fullnameOverride: "data-loader"
+serviceAccount:
+  create: true
+  name: "raga-role"
+broker:
+  create: true
+  dlq: "event-failure-capture"
+  retry: 3
+trigger:
+  create: true
+service:
+  port: 8080
+  NodePort:
+    create: false
+    port: 31000
+resources:
+  limits:
+    cpu: 1
+    # memory: 640M
+  requests:
+    cpu: 100m
+    memory: 640M
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+containerConcurrency:
+  enable: true
+  limit: 1
+DeployOnARM: true
+domainmapping:
+  create: false
+env:
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_URL
+    value: "redis-master.redis.svc.cluster.local"
+  - name: SERVICE_INVOCATION_METHOD
+    value: "knative"
+  - name: STATUS_UPDATER_KAFKA_BROKER_URL
+    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
