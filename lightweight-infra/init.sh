@@ -60,6 +60,8 @@ done
 mkdir ~/.kube
 cat /home/ubuntu/.kube/config > ~/.kube/config
 
+cat ~/.kube/config
+
 # Add MySQL Operator Helm repository and install MySQL Operator
 git clone https://github.com/mysql/mysql-operator.git
 helm repo add mysql-operator https://mysql.github.io/mysql-operator/
