@@ -24,4 +24,4 @@ do
     echo "Pods are running for $service"
 done
 
-echo "All services deployed successfully"
+echo "All services deployed successfully" >>helm.log
