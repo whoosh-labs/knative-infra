@@ -34,29 +34,30 @@ sudo usermod -aG docker ubuntu
 
 # Start Minikube (adjust options as needed)
 sudo -u ubuntu minikube start --driver=docker
+sleep 30
+sudo -u ubuntu minikube status | grep -i "host" | awk '{print $2}'
 
+# # Function to check Minikube status
+# check_minikube_status() {
+#   status=$(sudo -u ubuntu minikube status | grep -i "host" | awk '{print $2}')
+#   echo "Minikube status: $status"
+#   if [ "$status" == "Running" ]; then
+#     echo "Minikube is running." 
+#     sleep 20
+#     exit 0
+#   else
+#     echo "Minikube is not running."
+#     sudo usermod -aG docker ubuntu 
+#     sudo -u ubuntu minikube start --driver=docker
+#   fi
+# }
 
-# Function to check Minikube status
-check_minikube_status() {
-  status=$(sudo -u ubuntu minikube status | grep -i "host" | awk '{print $2}')
-  echo "Minikube status: $status"
-  if [ "$status" == "Running" ]; then
-    echo "Minikube is running." 
-    sleep 20
-    exit 0
-  else
-    echo "Minikube is not running."
-    sudo usermod -aG docker ubuntu 
-    sudo -u ubuntu minikube start --driver=docker
-  fi
-}
-
-# Loop to check Minikube status every 30 seconds
-while true; do
-  check_minikube_status
-  echo "Waiting for 30 seconds before next check..."
-  sleep 10
-done
+# # Loop to check Minikube status every 30 seconds
+# while true; do
+#   check_minikube_status
+#   echo "Waiting for 30 seconds before next check..."
+#   sleep 10
+# done
 
 # mkdir /.kube
 # cat /home/ubuntu/.kube/config > /.kube/config
