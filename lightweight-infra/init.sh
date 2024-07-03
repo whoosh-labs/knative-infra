@@ -1,56 +1,80 @@
-
 #!/bin/bash
 
-# Script to setup MySQL on Minikube using Helm and the MySQL Operator
+set -x  # Exit script on any error
 
-# Exit immediately if a command exits with a non-zero status
-set -e
+az login --identity
+az keyvault secret show --name raga-test1-secrets --vault-name raga-test1-secrets --query value -o tsv > /tmp/secrets.json | tr -d '"'
 
-# Add Helm GPG key
-echo "Adding Helm GPG key..."
-curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
-
-# Install apt-transport-https
-echo "Installing apt-transport-https..."
-sudo apt-get install apt-transport-https --yes
-
-# Add Helm stable repository
-echo "Adding Helm stable repository..."
-echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-
-# Update apt package index
-echo "Updating apt package index..."
+# Add Docker's official GPG key and repository
 sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
 
-# Install Helm
-echo "Installing Helm..."
-sudo apt-get install helm
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
-# Check Helm version
-echo "Checking Helm version..."
-helm version
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Add MySQL Operator Helm repository
-echo "Adding MySQL Operator Helm repository..."
-helm repo add mysql-operator https://mysql.github.io/mysql-operator/
+# Install Docker
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose
 
-# Update Helm repositories
-echo "Updating Helm repositories..."
-helm repo update
+# Install necessary tools: kubectl, Helm, Minikube, MySQL Operator
+sudo apt-get install -y curl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# Clone and install MySQL Operator
-echo "Cloning MySQL Operator repository..."
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+# Install Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+sudo usermod -aG docker ubuntu
+
+# Start Minikube (adjust options as needed)
+sudo -u ubuntu minikube start --driver=docker
+
+
+# Function to check Minikube status
+check_minikube_status() {
+  status=$(sudo -u ubuntu minikube status | grep -i "host" | awk '{print $2}')
+  echo "Minikube status: $status"
+  if [ "$status" == "Running" ]; then
+    echo "Minikube is running."
+    exit 0
+  else
+    echo "Minikube is not running."
+    sudo usermod -aG docker ubuntu 
+    sudo -u ubuntu minikube start --driver=docker
+  fi
+}
+
+# Loop to check Minikube status every 30 seconds
+while true; do
+  check_minikube_status
+  echo "Waiting for 30 seconds before next check..."
+  sleep 10
+done
+
+mkdir ~/.kube
+cat /home/ubuntu/.kube/config > ~/.kube/config
+
+# Add MySQL Operator Helm repository and install MySQL Operator
 git clone https://github.com/mysql/mysql-operator.git
-cd mysql-operator
-
-echo "Installing MySQL Operator..."
+helm repo add mysql-operator https://mysql.github.io/mysql-operator/
+helm repo update
 helm install mysql-operator mysql-operator/mysql-operator --namespace mysql-operator --create-namespace
 
-# Change directory to mysql-innodbcluster/
-cd helm/mysql-innodbcluster/
+# Change directory to MySQL InnoDB Cluster Helm chart
+cd mysql-operator/helm/mysql-innodbcluster/
 
-# Replace values.yaml with the edited version
-echo "Creating custom values.yaml..."
+
+MYSQL_USERNAME=$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')
+MYSQL_PASSWORD=$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') 
+
+
+# Use a here document to create or update values.yaml
 cat <<EOF > values.yaml
 image:
   pullPolicy: IfNotPresent
@@ -60,19 +84,15 @@ image:
 
 credentials:
   root:
-    user: root
-    password: raga123
+    user: $MYSQL_USERNAME
+    password: $MYSQL_PASSWORD
     host: "%"
 
 tls:
   useSelfSigned: true
-#  caSecretName:
-#  serverCertAndPKsecretName:
-#  routerCertAndPKsecretName: # or use router.certAndPKsecretName
 
-#serverVersion: 8.0.31
 serverInstances: 1
-routerInstances: 1 # or use router.instances
+routerInstances: 1
 baseServerId: 1000
 
 podSpec:
@@ -80,35 +100,22 @@ podSpec:
   - name: mysql
     resources:
       requests:
-        memory: "1024Mi"  # adapt to your needs
-        cpu: "1000m"      # adapt to your needs
+        memory: "1024Mi"
+        cpu: "1000m"
       limits:
-        memory: "1536Mi"  # adapt to your needs
-        cpu: "1500m"      # adapt to your needs
+        memory: "1536Mi"
+        cpu: "1500m"
 
 disableLookups: false
 EOF
 
-# Make the init.sh script executable
-echo "Making the init.sh script executable..."
-chmod +x init.sh
-
 # Install MySQL InnoDB Cluster using Helm
-echo "Installing MySQL InnoDB Cluster..."
 helm install mycluster mysql-operator/mysql-innodbcluster \
     --namespace mysql-operator \
     -f values.yaml
 
-# Check pods in mysql-operator namespace
-echo "Checking pods in mysql-operator namespace..."
-kubectl get po -n mysql-operator
-
-# Check InnoDB Cluster resources
-echo "Checking InnoDB Cluster resources..."
+# Check pods and resources
+kubectl get pods -n mysql-operator
 kubectl get innodbcluster -n mysql-operator
 
-# Check pods in mysql-operator namespace again
-echo "Checking pods in mysql-operator namespace again..."
-kubectl get po -n mysql-operator
-
-echo "MySQL InnoDB Cluster setup completed successfully!"
+echo "Installation completed successfully"
