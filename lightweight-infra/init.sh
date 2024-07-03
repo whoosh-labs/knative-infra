@@ -41,7 +41,8 @@ check_minikube_status() {
   status=$(sudo -u ubuntu minikube status | grep -i "host" | awk '{print $2}')
   echo "Minikube status: $status"
   if [ "$status" == "Running" ]; then
-    echo "Minikube is running."
+    echo "Minikube is running." 
+    sleep 20
     exit 0
   else
     echo "Minikube is not running."
@@ -57,19 +58,17 @@ while true; do
   sleep 10
 done
 
-mkdir ~/.kube
-cat /home/ubuntu/.kube/config > ~/.kube/config
-
-cat ~/.kube/config
+# mkdir /.kube
+# cat /home/ubuntu/.kube/config > /.kube/config
 
 # Add MySQL Operator Helm repository and install MySQL Operator
-git clone https://github.com/mysql/mysql-operator.git
-helm repo add mysql-operator https://mysql.github.io/mysql-operator/
-helm repo update
-helm install mysql-operator mysql-operator/mysql-operator --namespace mysql-operator --create-namespace
+# git clone https://github.com/mysql/mysql-operator.git
+sudo -u ubuntu helm repo add mysql-operator https://mysql.github.io/mysql-operator/
+sudo -u ubuntu helm repo update
+sudo -u ubuntu helm install mysql-operator mysql-operator/mysql-operator --namespace mysql-operator --create-namespace
 
 # Change directory to MySQL InnoDB Cluster Helm chart
-cd mysql-operator/helm/mysql-innodbcluster/
+# cd mysql-operator/helm/mysql-innodbcluster/
 
 
 MYSQL_USERNAME=$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')
@@ -112,12 +111,48 @@ disableLookups: false
 EOF
 
 # Install MySQL InnoDB Cluster using Helm
-helm install mycluster mysql-operator/mysql-innodbcluster \
+sudo -u ubuntu helm install mycluster mysql-operator/mysql-innodbcluster \
     --namespace mysql-operator \
     -f values.yaml
 
-# Check pods and resources
-kubectl get pods -n mysql-operator
-kubectl get innodbcluster -n mysql-operator
 
-echo "Installation completed successfully"
+sudo -u ubuntu helm repo add bitnami https://charts.bitnami.com/bitnami
+sudo -u ubuntu helm install redis bitnami/redis --set auth.enabled=false --set architecture=standalone -n redis --create-namespace
+sudo -u ubuntu helm repo add elastic https://helm.elastic.co
+sudo -u ubuntu helm repo update
+sudo -u ubuntu helm install elastic-operator elastic/eck-operator -n elk --create-namespace
+sudo -u ubuntu kubectl create secret generic elastic-serch-cluster-es-elastic-user -n elk --from-literal=elastic=$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"') 
+sudo -u ubuntu kubectl apply -f es-kibana.yaml -n elk
+sudo -u ubuntu kubectl create ns raga
+sudo -u ubuntu kubectl create ns raga-models
+sudo -u ubuntu kubectl create secret generic backend -n raga --from-literal=API_HOST=https://backend.${DOMAIN}/api --from-literal=AWS_BUCKET_NAME=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"') --from-literal=AWS_REGION=$(jq ".AWS_S3_BUCKET_REGION" /tmp/secrets.json | tr -d '"') --from-literal=FRONTEND_URL=https://${DOMAIN} --from-literal=GITHUB_CLIENT_ID="NA" --from-literal=GITHUB_CLIENT_SECRET="NA" --from-literal=GOOGLE_CLIENT_ID="NA" --from-literal=GOOGLE_CLIENT_SECRET="NA" --from-literal=JWT_SECRET="NA" --from-literal=MYSQL_PASSWORD=$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=MYSQL_URL="mycluster.mysql-operator.svc.cluster.local" --from-literal=MYSQL_USERNAME=$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')
+sudo -u ubuntu kubectl create secret generic cluster-operators -n raga --from-literal=ELASTIC_PASSWORD=$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=S3_BUCKET=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"')
+sudo -u ubuntu kubectl create secret generic llm-data-loader -n raga --from-literal=ELASTIC_PASSWORD=$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=S3_BUCKET=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"')
+sudo -u ubuntu kubectl create secret generic llm-platform-api -n raga --from-literal=AES_ENCRYPTION_KEY=$(jq ".AES_ENCRYPTION_KEY" /tmp/secrets.json | tr -d '"') --from-literal=API_HOST=https://backend.${DOMAIN}/api --from-literal=AWS_BUCKET_NAME=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"') --from-literal=AWS_REGION=$(jq ".AWS_S3_BUCKET_REGION" /tmp/secrets.json | tr -d '"') --from-literal=ENV_TYPE=$(jq ".ENV_NAME" /tmp/secrets.json | tr -d '"') --from-literal=FRONTEND_URL="https://${DOMAIN}" --from-literal=GITHUB_CLIENT_ID="NA" --from-literal=GITHUB_CLIENT_SECRET="NA" --from-literal=GOOGLE_CLIENT_ID="NA" --from-literal=GOOGLE_CLIENT_SECRET="NA" --from-literal=JWT_SECRET="NA" --from-literal=MYSQL_PASSWORD=$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=MYSQL_URL="mycluster.mysql-operator.svc.cluster.local" --from-literal=MYSQL_USERNAME="$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')"
+sudo -u ubuntu kubectl create secret generic llm-platform-operators -n raga --from-literal=ELASTIC_PASSWORD=$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=S3_BUCKET="$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"')"
+sudo -u ubuntu kubectl create secret generic model-packager -n raga-models --from-literal=DOCKERHUB_PASSWORD=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=DOCKERHUB_USERNAME="$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"')"
+sudo -u ubuntu kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"') --docker-password=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --docker-email=$(jq ".DOCKERHUB_EMAIL" /tmp/secrets.json | tr -d '"') -n raga
+sudo -u ubuntu kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"') --docker-password=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --docker-email=$(jq ".DOCKERHUB_EMAIL" /tmp/secrets.json | tr -d '"') -n raga-models
+
+cd raga-testing-platform
+
+services=("frontend") 
+
+
+for service in "${services[@]}"
+do
+    echo "Installing Helm chart for $service"
+  
+    helm install $service -f $service.yaml . -n raga
+
+    echo "Checking if pods are running for $service"
+    until kubectl get pods | grep $service | grep Running
+    do
+        echo "Waiting for pods to be ready..."
+        sleep 10
+    done
+    echo "Pods are running for $service"
+done
+echo "All services deployed successfully"
+
+minikube service frontend-nodeport -n raga --url
