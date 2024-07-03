@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration
+  namespace: raga
+spec:
+  template:
+    metadata:
+      labels:
+        job: db-migration
+    spec:
+      containers:
+      - name: script-runner
+        image: alpine
+        command: ["/bin/sh", "-c", "sh /tmp/db_migration.sh $(GITHUB_PAT) $(MYSQL_USERNAME) $(MYSQL_PASSWORD) $(MYSQL_FQDN)"]
+        volumeMounts:
+        - name: script-volume
+          mountPath: /tmp
+      restartPolicy: Never
+      volumes:
+      - name: script-volume
+        configMap:
+          name: db-migration-config
+  backoffLimit: 0

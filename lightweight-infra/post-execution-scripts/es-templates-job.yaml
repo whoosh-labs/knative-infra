@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: es-templates
+  namespace: raga
+spec:
+  template:
+    metadata:
+      labels:
+        job: es-templates
+    spec:
+      containers:
+        - name: script-runner
+          image: alpine
+          command: ["/bin/sh", "-c", "sh /tmp/es-templates.sh ${GITHUB_PASSWORD} ${ELASTIC_SEARCH_PASSWORD}"]
+          volumeMounts:
+            - name: script-volume
+              mountPath: /tmp
+      restartPolicy: Never
+      volumes:
+        - name: script-volume
+          configMap:
+            name: es-templates-config
+  backoffLimit: 0
+

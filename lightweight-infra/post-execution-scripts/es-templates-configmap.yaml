@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: es-templates-config
+  namespace: raga
+data:
+  es-templates.sh: |
+    #!/bin/bash
+    set -x 
+
+    # Define variables
+    db_name="testing_platform"
+    sql_file="src/main/resources/db/migration/base_migration_import.sql"
+    envname="prod"
+    maven_version="3.6.3"
+
+    apk add --no-cache curl jq bash unzip git sudo wget
+
+    # Check if required arguments are provided
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: $0 <git_pat> <es_password>"
+        exit 1
+    fi
+
+    # Assign arguments to variables
+    git_pat=$1
+    es_password=$2
+
+    # Install property-manager-java-services
+    git clone https://$git_pat@github.com/whoosh-labs/esservices.git
+    cd esservices/src/main/resources
+    tail -n +2 tf_template.txt > tf_template.json
+    tail -n +2 embeddings_template.txt > embeddings_template.json
+
+    cat embeddings_template.json
+
+    curl -u elastic:$es_password -X PUT "http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200/_index_template/tf_template" -H "Content-Type: application/json" -d @tf_template.json
+    curl -u elastic:$es_password -X PUT "http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200/_index_template/embeddings_template" -H "Content-Type: application/json" -d @embeddings_template.json
+
