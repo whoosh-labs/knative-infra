@@ -3,24 +3,29 @@ kind: Deployment
 metadata:
   labels:
     app: {{ include "ragaai-helm.fullname" . }}
-  name: {{ include "ragaai-helm.fullname" . }}-deployment
+  name: {{ include "ragaai-helm.fullname" . }}
   namespace: raga
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "ragaai-helm.fullname" . }}
   template:
     metadata:
       labels:
         app: {{ include "ragaai-helm.fullname" . }}
     spec:
       containers:
-      - name: user-container
+      - env: {{ .Values.env | toYaml | nindent 10 }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: IfNotPresent
-        env: {{ .Values.env | toYaml | nindent 10 }}
         livenessProbe: {{ .Values.livenessProbe | toYaml | nindent 10 }}
-        readinessProbe: {{ .Values.readinessProbe | toYaml | nindent 10 }}
+        name: user-container
         ports:
         - containerPort: {{ .Values.service.port }}
           name: user-port
           protocol: TCP
-          resources: {{ .Values.resources | toYaml | nindent 10 }}
+        readinessProbe: {{ .Values.readinessProbe | toYaml | nindent 10 }}
+        resources: {{ .Values.resources | toYaml | nindent 10 }}
+      imagePullSecrets:
+      - name: regcred
