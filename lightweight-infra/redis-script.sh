@@ -14,4 +14,4 @@ kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=redis --timeout
 
 helm status my-redis
 
-echo "Redis installation completed successfully."
+echo "Redis installation completed successfully." >>redis.log
