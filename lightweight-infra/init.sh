@@ -141,6 +141,7 @@ cd raga-testing-platform
 
 services=("frontend") 
 
+# services=( "frontend" "backend") 
 
 for service in "${services[@]}"
 do
@@ -149,7 +150,7 @@ do
     sudo -u ubuntu helm install $service -f $service.yaml . -n raga
 
     echo "Checking if pods are running for $service"
-    until sudo -u ubuntu kubectl get pods | grep $service | grep Running
+    until sudo -u ubuntu kubectl get pods -n raga | grep $service | grep Running
     do
         echo "Waiting for pods to be ready..."
         sleep 10
@@ -157,7 +158,6 @@ do
     echo "Pods are running for $service"
 done
 echo "All services deployed successfully"
-
 sudo -u ubuntu minikube service frontend-nodeport -n raga --url
 
 
