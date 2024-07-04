@@ -20,7 +20,7 @@ service:
   port: 8080
   NodePort:
     create: true
-    port: 31000
+    port: 31200
 resources:
   limits:
     cpu: 1
