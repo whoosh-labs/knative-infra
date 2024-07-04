@@ -112,6 +112,11 @@ env:
       secretKeyRef:
         name: llm-platform-api
         key: AWS_REGION
+  - name: AES_ENCRYPTION_KEY
+    valueFrom:
+      secretKeyRef:
+        name: llm-platform-api
+        key: AES_ENCRYPTION_KEY
   # - name: AWS_ACCESS_KEY_ID
   #   valueFrom:
   #     secretKeyRef:
