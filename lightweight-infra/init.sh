@@ -189,8 +189,8 @@ do
     echo "Pods are running for $service"
 done
 
-sudo -u ubuntu minikube service frontend-nodeport -n raga --url
-sudo -u ubuntu minikube service backend-nodeport -n raga --url
+# sudo -u ubuntu minikube service frontend-nodeport -n raga --url
+# sudo -u ubuntu minikube service backend-nodeport -n raga --url
 
 
 sed -i "s/CUSTOMER_NAME/$CUSTOMER_NAME/g" /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
@@ -230,10 +230,18 @@ sudo a2enmod proxy_http
 sudo a2enmod proxy_balancer
 sudo a2enmod lbmethod_byrequests
 
+sudo -u ubuntu minikube addons enable ingress
+sudo -u ubuntu minikube service ingress-nginx-controller -n ingress-nginx - url > /tmp/ingress-output
+sudo -u ubuntu kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml
 
-cat <<EOF > /etc/apache2/sites-available/reverse-proxy-frontend.conf
+INGRES_443=$(cat /tmp/ingress-output  | grep "http/80" | head -n 1 | awk '{print $8}')
+INGRES_80=$(cat /tmp/ingress-output  | grep " https/443" | awk '{print $6}')
+
+
+cat <<EOF > /etc/apache2/sites-available/reverse-proxy-ingress.conf
 <VirtualHost *:80>
-    ServerName $DOMAIN
+    ServerName localhost
+    ServerAlias *
 
     ProxyRequests Off
     ProxyPreserveHost On
@@ -242,17 +250,18 @@ cat <<EOF > /etc/apache2/sites-available/reverse-proxy-frontend.conf
         Require all granted
     </Proxy>
 
-    ProxyPass / http://192.168.49.2:31000/
-    ProxyPassReverse / http://192.168.49.2:31000/
+    ProxyPass / $INGRES_80/
+    ProxyPassReverse / $INGRES_80/
 
     ErrorLog \${APACHE_LOG_DIR}/error.log
     CustomLog \${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 EOF
 
-cat <<EOF > /etc/apache2/sites-available/reverse-proxy-backend.conf
-<VirtualHost *:80>
-    ServerName backend.$DOMAIN
+cat <<EOF > /etc/apache2/sites-available/reverse-proxy-ingress-ssl.conf
+<VirtualHost *:443>
+    ServerName localhost
+    ServerAlias *
 
     ProxyRequests Off
     ProxyPreserveHost On
@@ -261,14 +270,67 @@ cat <<EOF > /etc/apache2/sites-available/reverse-proxy-backend.conf
         Require all granted
     </Proxy>
 
-    ProxyPass / http://192.168.49.2:32000/
-    ProxyPassReverse / http://192.168.49.2:32000/
+    ProxyPass / $INGRES_443/
+    ProxyPassReverse / $INGRES_443/
 
     ErrorLog \${APACHE_LOG_DIR}/error.log
     CustomLog \${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 EOF
 
-sudo a2ensite reverse-proxy-frontend.conf
-sudo a2ensite reverse-proxy-backend.conf
+sudo a2ensite reverse-proxy-ingress.conf
+sudo a2ensite reverse-proxy-ingress-ssl.conf
 sudo systemctl restart apache2
+
+
+until sudo -u ubuntu kubectl get pods -n cert-manager | grep cert-manager-webhook | grep "1/1" | grep "Running"
+do
+    echo "Waiting for cert-manager cluster pods to be ready..."
+    sleep 10
+done
+
+cat <<EOF > /tmp/letsencrypt.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: naveen.gogu@raga.ai
+    privateKeySecretRef:
+      name: letsencrypt
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+EOF
+sudo -u ubuntu kubectl apply -f /tmp/letsencrypt.yaml
+
+DOMAIN="test2.ragaai.ai"
+cat <<EOF > /tmp/frontend.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend
+  annotations:
+   kubernetes.io/ingress.class: nginx
+   cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  rules:
+  - host: $DOMAIN
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port:
+                number: 80
+  tls:
+      - hosts:
+          - $DOMAIN
+        secretName: tls-2048-raga
+EOF
+sudo -u ubuntu kubectl apply -f /tmp/frontend.yaml
