@@ -26,8 +26,8 @@ resources:
     cpu: 500m
     memory: 500M
   requests:
-    cpu: 500m
-    memory: 500M
+    cpu: 100m
+    memory: 200M
 autoscaling:
   minReplicas: 1
   maxReplicas: 3

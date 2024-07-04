@@ -24,8 +24,8 @@ resources:
     cpu: 1
     memory: 1024M
   requests:
-    cpu: 1
-    memory: 1024M
+    cpu: 100m
+    memory: 200M
 hpa:
   # metric availabe values memory | cpu
   metric: memory
