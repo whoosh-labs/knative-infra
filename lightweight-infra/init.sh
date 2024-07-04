@@ -37,7 +37,7 @@ sudo install minikube-linux-amd64 /usr/local/bin/minikube
 sudo usermod -aG docker ubuntu
 
 # Start Minikube (adjust options as needed)
-sudo -u ubuntu minikube start --driver=docker
+sudo -u ubuntu minikube start --cpus 6 --memory 8192 --driver=docker
 sleep 30
 sudo -u ubuntu minikube status | grep -i "host" | awk '{print $2}'
 
