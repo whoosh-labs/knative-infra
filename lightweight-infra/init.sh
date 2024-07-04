@@ -3,9 +3,11 @@
 set -x  # Exit script on any error
 
 DOMAIN=$1
+CUSTOMER_NAME=$2
+ENVIRONEMNT_NAME=$3
 
 az login --identity
-az keyvault secret show --name raga-test1-secrets --vault-name raga-test1-secrets --query value -o tsv > /tmp/secrets.json | tr -d '"'
+az keyvault secret show --name $CUSTOMER_NAME-$ENVIRONEMNT_NAME-secrets --vault-name $CUSTOMER_NAME-$ENVIRONEMNT_NAME-secrets --query value -o tsv > /tmp/secrets.json | tr -d '"'
 
 # Add Docker's official GPG key and repository
 sudo apt-get update
