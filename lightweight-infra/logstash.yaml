@@ -1,0 +1,95 @@
+persistence:
+  enabled: true
+
+logstashConfig:
+  logstash.yml: |
+    http.host: 0.0.0.0
+    xpack.monitoring.enabled: false
+
+logstashPipeline: 
+  logstash.conf: |
+    input {
+        beats {
+          port => 5044
+        }
+      }
+      filter {
+        mutate {
+          add_field => { "log_group" => "miscellaneous" }
+          add_field => { "log_type" => "app" }
+        }
+        if [kubernetes][labels][service_istio_io/canonical-name] {
+          mutate {
+            replace => { "log_group" => "%{[kubernetes][labels][service_istio_io/canonical-name]}" }
+          }
+          if ([message] =~ /\/healthcheck/) {
+            mutate {
+              replace => { "log_type" => "healthcheck" }
+            }
+          }
+        } else {
+          mutate {
+            replace => { "log_type" => "clusterlogs" }
+          }
+          if [kubernetes][deployment][name] {
+            mutate {
+              replace => { "log_group" => "%{[kubernetes][deployment][name]}" }
+            }
+          } else if [kubernetes][daemonset][name] {
+            mutate {
+              replace => { "log_group" => "%{[kubernetes][daemonset][name]}" }
+            }
+          } else if [kubernetes][statefulset][name] {
+            mutate {
+              replace => { "log_group" => "%{[kubernetes][statefulset][name]}" }
+            }
+          } else {
+            drop {}
+          }
+        }
+        mutate {
+          add_field => { "kubernetes_node_name" => "%{[kubernetes][node][name]}" }
+          add_field => { "kubernetes_pod_ip" => "%{[kubernetes][pod][ip]}" }
+          add_field => { "kubernetes_pod_name" => "%{[kubernetes][pod][name]}" }
+        }
+        grok {
+          match => { "message" => "(?m)%{TIMESTAMP_ISO8601:timestamp}.*REQUEST URI=%{URIPATHPARAM:request_uri};.*; TIME TAKEN=%{NUMBER:time_taken:int} ms" }
+        }
+        if [request_uri] {
+          mutate {
+            gsub => ["request_uri", "(\b\d+\b)", "*"]
+          }
+        }
+        prune {
+          whitelist_names => ["message", "@timestamp", "log_type", "log_group", "kubernetes_node_name", "kubernetes_pod_ip", "kubernetes_pod_name", "request_uri", "time_taken"]
+        }
+       
+        #mutate {
+        #  add_field => {
+        #    "[data_stream][type]" => "logs"
+        #    "[data_stream][dataset]" => "%{[log_group]}-%{[log_type]}"
+        #    "[data_stream][namespace]" => "%{+YYYY.MM.dd}"
+        #  }
+        #}
+      }
+      output {
+        elasticsearch {
+          hosts => ["http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200"]
+          index => "%{[log_group]}-%{[log_type]}-%{+YYYY.MM.dd}"
+          user => "elastic"
+          password => "elastic_search_password"
+          action => "create"
+        }
+      }
+
+service:
+  type: ClusterIP
+  ports:
+    - name: beats
+      port: 5044
+      protocol: TCP
+      targetPort: 5044
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
