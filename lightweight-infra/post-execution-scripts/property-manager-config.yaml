@@ -45,7 +45,7 @@ data:
     --header 'Content-Type: application/json' \
     --data-raw '{
         "username": "SYSTEM_ADMIN",
-        "password": "admin@1234"
+        "password": "adminraga@1234"
     }')
 
     Bearer_Token=$(echo $RESPONSE | jq -r '.token')

@@ -127,9 +127,8 @@ do
     sleep 10
 done
 
-sudo -u ubuntu kubectl apply /knative-infra/lightweight-infra/post-execution-scripts/export-db-to-nodeport.yaml
-
 sleep 20 
+sudo -u ubuntu kubectl apply -f /knative-infra/lightweight-infra/post-execution-scripts/export-db-to-nodeport.yaml
 sudo -u ubuntu minikube service mycluster-nodeport -n mysql-operator --url
 
 bash /knative-infra/lightweight-infra/post-execution-scripts/flyway_automation.sh $(jq ".GITHUB_PASWWROD" /tmp/secrets.json | tr -d '"') $(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"') $(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') 192.168.49.2 31100
