@@ -121,6 +121,18 @@ sudo -u ubuntu helm install mycluster mysql-operator/mysql-innodbcluster \
     -f values.yaml
 
 
+until sudo -u ubuntu kubectl get pods -n mysql-operator | grep mycluster-0 | grep Running
+do
+    echo "Waiting for mysql cluster pods to be ready..."
+    sleep 10
+done
+
+sudo -u ubuntu kubectl apply /knative-infra/lightweight-infra/post-execution-scripts/export-db-to-nodeport.yaml
+
+sudo -u ubuntu minikube service mycluster-nodeport -n mysql-operator --url
+
+bash /knative-infra/lightweight-infra/post-execution-scripts/flyway_automation.sh $(jq ".GITHUB_PASWWROD" /tmp/secrets.json | tr -d '"') $(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"') $(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') 192.168.49.2 31100
+
 sudo -u ubuntu helm repo add bitnami https://charts.bitnami.com/bitnami
 sudo -u ubuntu helm install redis bitnami/redis --set auth.enabled=false --set architecture=standalone -n redis --create-namespace
 sudo -u ubuntu helm repo add elastic https://helm.elastic.co

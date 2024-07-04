@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    mysql.oracle.com/cluster: mycluster
+    tier: mysql
+  name: mycluster-nodeport
+  namespace: mysql-operator
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: mysql
+    port: 3306
+    protocol: TCP
+    targetPort: 6446
+    nodePort: 31100
+  selector:
+    component: mysqlrouter
+    mysql.oracle.com/cluster: mycluster
+    tier: mysql
+  sessionAffinity: None
+  type: NodePort

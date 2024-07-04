@@ -9,11 +9,6 @@ data:
     set -x 
 
     # Define variables
-    db_name="testing_platform"
-    sql_file="src/main/resources/db/migration/base_migration_import.sql"
-    envname="prod"
-    maven_version="3.6.3"
-
     apk add --no-cache curl jq bash unzip git sudo wget
 
     # Check if required arguments are provided
