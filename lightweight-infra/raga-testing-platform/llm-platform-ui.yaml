@@ -20,7 +20,7 @@ service:
   port: 80
   NodePort:
     create: true
-    port: 31100
+    port: 31110
 resources:
   limits:
     cpu: 500m

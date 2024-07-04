@@ -17,7 +17,7 @@ broker:
 trigger:
   create: true
 service:
-  port: 5000
+  port: 9000
   NodePort:
     create: false
     port: 31000
@@ -34,13 +34,13 @@ autoscaling:
 livenessProbe:
   httpGet:
     path: /api/healthcheck
-    port: 5000
+    port: 9000
   initialDelaySeconds: 3
   periodSeconds: 3
 readinessProbe:
   httpGet:
     path: /api/healthcheck
-    port: 5000
+    port: 9000
   initialDelaySeconds: 3
   periodSeconds: 3
 containerConcurrency:

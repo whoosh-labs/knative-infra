@@ -112,16 +112,11 @@ env:
       secretKeyRef:
         name: backend
         key: AWS_REGION
-  # - name: AWS_ACCESS_KEY_ID
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: backend
-  #       key: AWS_ACCESS_KEY_ID
-  # - name: AWS_SECRET_ACCESS_KEY
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: backend
-  #       key: AWS_SECRET_ACCESS_KEY
+  - name: AES_ENCRYPTION_KEY
+    valueFrom:
+      secretKeyRef:
+        name: backend
+        key: AES_ENCRYPTION_KEY
   - name: RAG_SUGGESTION_URL
     value: 'dummy value to skip error in knative'
   - name: FLOWISE_URL
