@@ -126,6 +126,10 @@ sudo -u ubuntu helm repo update
 sudo -u ubuntu helm install elastic-operator elastic/eck-operator -n elk --create-namespace
 sudo -u ubuntu kubectl create secret generic elastic-serch-cluster-es-elastic-user -n elk --from-literal=elastic=$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"') 
 sudo -u ubuntu kubectl apply -f es-kibana.yaml -n elk
+sed -i "s/elastic_search_password/$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"')"/g logstash.yaml
+helm upgrade --install elk-logstash --version 8.5.1 --namespace elk -f logstash.yaml elastic/logstash
+helm upgrade --install elk-filebeat --version 8.5.1 --namespace elk -f filebeat.yaml elastic/filebeat
+
 sudo -u ubuntu kubectl create ns raga
 sudo -u ubuntu kubectl create ns raga-models
 sudo -u ubuntu kubectl create secret generic backend -n raga --from-literal=API_HOST=https://backend.${DOMAIN}/api --from-literal=AWS_BUCKET_NAME=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"') --from-literal=AWS_REGION=$(jq ".AWS_S3_BUCKET_REGION" /tmp/secrets.json | tr -d '"') --from-literal=FRONTEND_URL=https://${DOMAIN} --from-literal=GITHUB_CLIENT_ID="NA" --from-literal=GITHUB_CLIENT_SECRET="NA" --from-literal=GOOGLE_CLIENT_ID="NA" --from-literal=GOOGLE_CLIENT_SECRET="NA" --from-literal=JWT_SECRET="NA" --from-literal=MYSQL_PASSWORD=$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=MYSQL_URL="mycluster.mysql-operator.svc.cluster.local" --from-literal=MYSQL_USERNAME=$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')
