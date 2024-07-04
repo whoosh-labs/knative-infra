@@ -121,7 +121,7 @@ sudo -u ubuntu helm install mycluster mysql-operator/mysql-innodbcluster \
     -f values.yaml
 
 
-until sudo -u ubuntu kubectl get pods -n mysql-operator | grep mycluster-0 | grep Running
+until sudo -u ubuntu kubectl get pods -n mysql-operator | grep mycluster-0 | grep "2/2" | grep "Running"
 do
     echo "Waiting for mysql cluster pods to be ready..."
     sleep 10
@@ -129,6 +129,7 @@ done
 
 sudo -u ubuntu kubectl apply /knative-infra/lightweight-infra/post-execution-scripts/export-db-to-nodeport.yaml
 
+sleep 20 
 sudo -u ubuntu minikube service mycluster-nodeport -n mysql-operator --url
 
 bash /knative-infra/lightweight-infra/post-execution-scripts/flyway_automation.sh $(jq ".GITHUB_PASWWROD" /tmp/secrets.json | tr -d '"') $(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"') $(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') 192.168.49.2 31100
@@ -153,9 +154,10 @@ sudo -u ubuntu kubectl create secret generic llm-platform-operators -n raga --fr
 sudo -u ubuntu kubectl create secret generic model-packager -n raga-models --from-literal=DOCKERHUB_PASSWORD=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=DOCKERHUB_USERNAME="$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"')"
 sudo -u ubuntu kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"') --docker-password=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --docker-email=$(jq ".DOCKERHUB_EMAIL" /tmp/secrets.json | tr -d '"') -n raga
 sudo -u ubuntu kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"') --docker-password=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --docker-email=$(jq ".DOCKERHUB_EMAIL" /tmp/secrets.json | tr -d '"') -n raga-models
+sudo -u ubuntu kubectl create secret generic aws-keys -n raga-models --from-literal=AWS_ACCESS_KEY_ID=$(jq ".AWS_ACCESS_KEY_ID" /tmp/secrets.json | tr -d '"')--from-literal=AWS_SECRET_ACCESS_KEY="$(jq ".AWS_SECRET_ACCESS_KEY" /tmp/secrets.json | tr -d '"')"
+sudo -u ubuntu kubectl create secret generic aws-keys -n raga --from-literal=AWS_ACCESS_KEY_ID=$(jq ".AWS_ACCESS_KEY_ID" /tmp/secrets.json | tr -d '"') --from-literal=AWS_SECRET_ACCESS_KEY="$(jq ".AWS_SECRET_ACCESS_KEY" /tmp/secrets.json | tr -d '"')"
 
-
-until sudo -u ubuntu kubectl get pods -n mysql-operator | grep mycluster-0 | grep Running
+until sudo -u ubuntu kubectl get pods -n elk | grep elastic-serch-cluster-es-masters-0 | grep "1/1" | grep "Running"
 do
     echo "Waiting for mysql cluster pods to be ready..."
     sleep 10
@@ -180,16 +182,16 @@ do
     sudo -u ubuntu helm install $service -f $service.yaml . -n raga
 
     echo "Checking if pods are running for $service"
-    until sudo -u ubuntu kubectl get pods -n raga | grep $service | grep Running
+    until sudo -u ubuntu kubectl get pods -n raga | grep "1/1" | grep $service | grep Running
     do
         echo "Waiting for pods to be ready..."
         sleep 10
     done
     echo "Pods are running for $service"
 done
-echo "All services deployed successfully"
-sudo -u ubuntu minikube service frontend-nodeport -n raga --url
 
+sudo -u ubuntu minikube service frontend-nodeport -n raga --url
+sudo -u ubuntu minikube service backend-nodeport -n raga --url
 
 
 sed -i "s/CUSTOMER_NAME/$CUSTOMER_NAME/g" /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
@@ -201,9 +203,26 @@ sed -i "s/MYSQL_USERNAME/$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')"/
 sed -i "s/MYSQL_PASSWORD/$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
 sed -i "s/AWS_S3_BUCKET/$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
 
-
 sudo -u ubuntu kubectl apply -f /knative-infra/lightweight-infra/post-execution-scripts/property-manager-config.yaml
 sudo -u ubuntu kubectl apply -f /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+
+
+services=("cluster-operators" "data-loader" "esservice" "event-executor" "llm-data-loader" "llm-platform-api" "llm-platform-esservice" "llm-platform-operators" "llm-platform-status-updater" "llm-platform-ui" "plotly" "python-operator-batch-processor" "python-operator" "status-updater" "umap-operators") 
+
+for service in "${services[@]}"
+do
+    echo "Installing Helm chart for $service"
+  
+    sudo -u ubuntu helm install $service -f $service.yaml . -n raga
+
+    echo "Checking if pods are running for $service"
+    until sudo -u ubuntu kubectl get pods -n raga | grep "1/1" | grep $service | grep Running
+    do
+        echo "Waiting for pods to be ready..."
+        sleep 10
+    done
+    echo "Pods are running for $service"
+done
 
 
 ## proxy configuration
@@ -232,25 +251,25 @@ cat <<EOF > /etc/apache2/sites-available/reverse-proxy-frontend.conf
 </VirtualHost>
 EOF
 
-# cat <<EOF > /etc/apache2/sites-available/reverse-proxy-backend.conf
-# <VirtualHost *:80>
-#     ServerName backend.$DOMAIN
+cat <<EOF > /etc/apache2/sites-available/reverse-proxy-backend.conf
+<VirtualHost *:80>
+    ServerName backend.$DOMAIN
 
-#     ProxyRequests Off
-#     ProxyPreserveHost On
+    ProxyRequests Off
+    ProxyPreserveHost On
 
-#     <Proxy *>
-#         Require all granted
-#     </Proxy>
+    <Proxy *>
+        Require all granted
+    </Proxy>
 
-#     ProxyPass / http://192.168.49.2:32000/
-#     ProxyPassReverse / http://192.168.49.2:32000/
+    ProxyPass / http://192.168.49.2:32000/
+    ProxyPassReverse / http://192.168.49.2:32000/
 
-#     ErrorLog \${APACHE_LOG_DIR}/error.log
-#     CustomLog \${APACHE_LOG_DIR}/access.log combined
-# </VirtualHost>
-# EOF
+    ErrorLog \${APACHE_LOG_DIR}/error.log
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+EOF
 
 sudo a2ensite reverse-proxy-frontend.conf
-# sudo a2ensite reverse-proxy-backend.conf
+sudo a2ensite reverse-proxy-backend.conf
 sudo systemctl restart apache2
