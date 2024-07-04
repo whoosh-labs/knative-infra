@@ -23,10 +23,10 @@ service:
     port: 31000
 resources:
   limits:
-    cpu: 2
+    cpu: 1
     memory: 1024M
   requests:
-    cpu: 2
+    cpu: 1
     memory: 1024M
 autoscaling:
   minReplicas: 1
@@ -143,15 +143,15 @@ env:
   - name: PYTHON_OPERATOR_SQS_QUEUE_URL
     value: 'NA as it is a Knative environment'
   - name: DATA_LOADER_KAFKA_BROKER_URL
-    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader'
+    value: 'http://data-loader.raga.svc.cluster.local'
   - name: PYTHON_OPERATOR_KAFKA_BROKER_URL
-    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/llm-platform-operators'
+    value: 'http://llm-platform-operators.raga.svc.cluster.local'
   - name: SERVICE_INVOCATION_METHOD
     value: 'knative'
   - name: MAX_FILE_SIZE_IN_GB
     value: '5'
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: 'http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater'
+    value: 'http://status-updater.raga.svc.cluster.local'
   - name: PROPERTY_MANAGER_SERVICE_URL
     value: 'http://property-manager-client.raga.svc.cluster.local'
   - name: REDIS_URL

@@ -23,11 +23,11 @@ service:
     port: 31000
 resources:
   limits:
-    cpu: 100m
-    memory: 640M
+    cpu: 500m
+    memory: 500M
   requests:
-    cpu: 100m
-    memory: 640M
+    cpu: 500m
+    memory: 500M
 autoscaling:
   minReplicas: 0
   maxReplicas: 3
@@ -57,10 +57,10 @@ env:
   - name: SERVICE_INVOCATION_METHOD
     value: "knative"
   - name: PYTHON_OPERATOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/llm-platform-operators"
+    value: "http://llm-platform-operators.raga.svc.cluster.local"
   - name: DATA_LOADER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader"
+    value: "http://data-loader.raga.svc.cluster.local"
   - name: UMAP_OPERATOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/umap-operators"
+    value: "http://umap-operators.raga.svc.cluster.local"
   - name: MODEL_PACKAGER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga-models/model-packager"
+    value: "http://model-packager.raga-models.svc.cluster.local"

@@ -1,0 +1,13 @@
+{{- if .Values.PVC.enable }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.PVC.name }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ .Values.PVC.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.PVC.storage }}
+{{- end }}

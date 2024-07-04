@@ -24,10 +24,10 @@ service:
 resources:
   limits:
     cpu: 1
-    memory: 4500M
+    memory: 1024M
   requests:
     cpu: 1
-    memory: 4500M
+    memory: 1024M
 autoscaling:
   minReplicas: 0
   maxReplicas: 3
@@ -86,13 +86,13 @@ env:
   - name: STATUS_UPDATER_QUEUE_URL
     value: "https://sqs.us-east1.amazonaws.com/514856084243/raga-dev-status-updater-input-queue.fifo"
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater"
+    value: "http://status-updater.raga.svc.cluster.local"
   - name: SERVICE_INVOCATION_METHOD
     value: "knative"
   - name: LM_EXECUTOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor"
+    value: "http://event-executor.raga.svc.cluster.local"
   - name: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL
-    value: "http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator-batch-processor"
+    value: "http://python-operator-batch-processor.raga.svc.cluster.local"
   - name: LLM_OPERATOR
     value: "http://llm-operator.raga-models.svc.cluster.local"
   - name: FASTER_RCNN_MODEL_URL

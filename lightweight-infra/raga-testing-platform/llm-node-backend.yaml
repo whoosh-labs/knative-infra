@@ -23,10 +23,10 @@ service:
     port: 31000
 resources:
   limits:
-    cpu: 2
+    cpu: 1
     memory: 1024M
   requests:
-    cpu: 2
+    cpu: 1
     memory: 1024M
 autoscaling:
   minReplicas: 1

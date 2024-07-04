@@ -1,26 +1,24 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "event-executor4"
+  repository: "ragaai/models"
+  tag: "model-executor-6"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true
   name: "regcred"
-fullnameOverride: "event-executor"
+fullnameOverride: "model-executor"
 serviceAccount:
   create: true
   name: "raga-role"
 broker:
   create: true
   dlq: "event-failure-capture"
-  retry: 3
+  retry: 1
 trigger:
   create: true
 service:
   port: 8000
-  NodePort:
-    create: false
-    port: 31000
+DisablePublicAccess: false
 resources:
   limits:
     cpu: 500m
@@ -28,15 +26,20 @@ resources:
   requests:
     cpu: 500m
     memory: 500M
+hpa:
+  # metric availabe values memory | cpu
+  metric: memory
+  target: 80
 autoscaling:
   minReplicas: 0
   maxReplicas: 3
+  ScaleDownDelay: 15m
 livenessProbe:
   httpGet:
     path: /api/healthcheck
     port: 8000
-  initialDelaySeconds: 3
-  periodSeconds: 3
+  initialDelaySeconds: 10
+  periodSeconds: 10
 readinessProbe:
   httpGet:
     path: /api/healthcheck
@@ -44,19 +47,14 @@ readinessProbe:
   initialDelaySeconds: 3
   periodSeconds: 3
 containerConcurrency:
-  enable: false
+  enable: true
   limit: 1
-DeployOnARM: false
-domainmapping:
-  create: false
-env:
-  - name: REDIS_PORT
-    value: "6379"
-  - name: REDIS_URL
-    value: "redis-master.redis.svc.cluster.local"
-  - name: SERVICE_INVOCATION_METHOD
-    value: "knative"
-  - name: DATA_LOADER_KAFKA_BROKER_URL
-    value: "http://data-loader.raga.svc.cluster.local"
-  - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: "http://status-updater.raga.svc.cluster.local"
+PVC:
+  enable: true
+  cloud: azure #allowable values aws | azure
+  name: "model-executor-pvc"
+  storageClassName: "azurefile"
+  #following values required for only aws efs
+  storage: 50Gi
+  csiDriver: "efs.csi.aws.com"
+  FilesystemID: "fs-0b2eb5c3625e0aed9"

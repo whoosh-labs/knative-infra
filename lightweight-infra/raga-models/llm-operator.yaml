@@ -1,0 +1,81 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/llm-operator-kantive-release"
+  tag: "11-268c9bf"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  create: true
+  name: "regcred"
+
+fullnameOverride: "llm-operator"
+
+serviceAccount:
+  create: true
+  name: "raga-role"
+
+broker:
+  create: false
+  dlq: "event-failure-capture"
+  retry: 3
+
+trigger:
+  create: false
+
+service:
+  port: 8000
+
+DisablePublicAccess: false
+
+resources:
+  limits:
+    cpu: 1
+    memory: 1024M
+  requests:
+    cpu: 1
+    memory: 1024M
+
+hpa:
+  # metric availabe values memory | cpu
+  metric: memory
+  target: 80
+  
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 3
+  ScaleDownDelay: 2m
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+
+containerConcurrency:
+  enable: true
+  limit: 1
+
+PVC:
+  enable: false
+  cloud: azure  #allowable values aws | azure
+  name: "model-executor-pvc"
+  storageClassName: "efs-sc"
+  #following values required for only aws efs
+  storage: 50Gi
+  csiDriver: "efs.csi.aws.com"
+  FilesystemID: "fs-0b2eb5c3625e0aed9"
+
+# env:
+#   - name: API_HOST
+#     valueFrom: 
+#       secretKeyRef:
+#         name: backend
+#         key: API_HOST

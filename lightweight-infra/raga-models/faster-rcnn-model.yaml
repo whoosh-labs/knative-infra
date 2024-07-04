@@ -1,0 +1,75 @@
+# Default values for testing-platform-backend.
+image:
+  repository: "ragaai/faster-rcnn-model-release"
+  tag: "12-cd18b27"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  create: true
+  name: "regcred"
+
+fullnameOverride: "faster-rcnn-model"
+
+serviceAccount:
+  create: false
+  name: "raga-role"
+
+broker:
+  create: false
+  dlq: "event-failure-capture"
+  retry: 1
+
+trigger:
+  create: false
+
+service:
+  port: 8000
+
+DisablePublicAccess: false
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 500M
+  requests:
+    cpu: 500m
+    memory: 500M
+
+hpa:
+  # metric availabe values memory | cpu
+  create: true
+  metric: memory
+  target: 80
+  
+autoscaling:
+  minReplicas: 0
+  maxReplicas: 10
+  ScaleDownDelay: 2m
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 8000
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+
+containerConcurrency:
+  enable: true
+  limit: 1
+
+PVC:
+  enable: false
+  cloud: azure  #allowable values aws | azure
+  name: "model-executor-pvc"
+  storageClassName: "efs-sc"
+  #following values required for only aws efs
+  storage: 50Gi
+  csiDriver: "efs.csi.aws.com"
+  FilesystemID: "fs-0b2eb5c3625e0aed9"

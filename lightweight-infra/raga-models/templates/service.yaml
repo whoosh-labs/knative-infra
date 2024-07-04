@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ragaai-helm.fullname" . }}
+  labels:
+    app: {{ include "ragaai-helm.fullname" . }}
+spec:
+  selector:
+    app: {{ include "ragaai-helm.fullname" . }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: {{ .Values.service.port }}
+  type: ClusterIP
+--- 
+{{- if .Values.service.NodePort.create -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ragaai-helm.fullname" . }}-nodeport
+  labels:
+    app: {{ include "ragaai-helm.fullname" . }}
+spec:
+  selector:
+    app: {{ include "ragaai-helm.fullname" . }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: {{ .Values.service.port }}
+      nodePort: {{ .Values.service.NodePort.port }}
+  type: NodePort
+{{- end }}

@@ -24,11 +24,11 @@ service:
     port: 31000
 resources:
   limits:
-    cpu: 1
-    memory: 2500M
+    cpu: 500m
+    memory: 500M
   requests:
-    cpu: 100m
-    memory: 640M
+    cpu: 500m
+    memory: 500M
 autoscaling:
   minReplicas: 0
   maxReplicas: 3
