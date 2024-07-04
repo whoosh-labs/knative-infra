@@ -171,7 +171,7 @@ cd raga-testing-platform
 
 # services=("frontend") 
 
-services=( "frontend" "backend") 
+services=( "frontend" "backend" "property-manager-client") 
 
 for service in "${services[@]}"
 do
