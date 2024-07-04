@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "python-operator-batch-processor4"
+  repository: "ragaai/lightweight-poc"
+  tag: "python-operator-batch-processor1"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

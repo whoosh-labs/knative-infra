@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "cluster-operators-10"
+  repository: "ragaai/lightweight-poc"
+  tag: "cluster-operators-1"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

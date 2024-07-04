@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "status-updater-4"
+  repository: "ragaai/lightweight-poc"
+  tag: "status-updater-1"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

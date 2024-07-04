@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "event-executor4"
+  repository: "ragaai/lightweight-poc"
+  tag: "event-executor1"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

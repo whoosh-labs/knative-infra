@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "python-operator-6"
+  repository: "ragaai/ragaai/lightweight-poc"
+  tag: "python-operator-1"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

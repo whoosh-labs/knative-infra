@@ -1,7 +1,7 @@
 # Default values for testing-platform-api.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "llm-platform-api2"
+  repository: "ragaai/lightweight-poc"
+  tag: "llm-platform-api1"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

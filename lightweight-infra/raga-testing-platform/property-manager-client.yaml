@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "property-manager-client2"
+  repository: "ragaai/lightweight-poc"
+  tag: "property-manager-client1"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

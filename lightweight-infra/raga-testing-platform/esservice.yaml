@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "esservice-6"
+  repository: "ragaai/lightweight-poc"
+  tag: "esservice-1"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

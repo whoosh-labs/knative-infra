@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/knative-poc"
-  tag: "llm-data-loader20"
+  repository: "ragaai/lightweight-poc"
+  tag: "llm-data-loader1"
   pullPolicy: IfNotPresent
 metadata:
   name: "llm-data-loader"
