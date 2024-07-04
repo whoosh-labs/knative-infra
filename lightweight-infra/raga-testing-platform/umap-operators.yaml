@@ -81,3 +81,13 @@ env:
     value: "http://llm-operator.raga-models.svc.cluster.local"
   - name: FASTER_RCNN_MODEL_URL
     value: "http://faster-rcnn-model.raga-models.svc.cluster.local/"
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: aws-keys
+        key: AWS_ACCESS_KEY_ID
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: aws-keys
+        key: AWS_SECRET_ACCESS_KEY

@@ -170,3 +170,13 @@ env:
     value: 'INFO'
   - name: JWT_REFRESH_TOKEN_EXPIRATION
     value: '86400000'
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: aws-keys
+        key: AWS_ACCESS_KEY_ID
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: aws-keys
+        key: AWS_SECRET_ACCESS_KEY

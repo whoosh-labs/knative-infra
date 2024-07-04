@@ -60,3 +60,13 @@ env:
     value: "http://data-loader.raga.svc.cluster.local"
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
     value: "http://status-updater.raga.svc.cluster.local"
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: aws-keys
+        key: AWS_ACCESS_KEY_ID
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: aws-keys
+        key: AWS_SECRET_ACCESS_KEY

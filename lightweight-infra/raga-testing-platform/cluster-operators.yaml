@@ -101,3 +101,13 @@ env:
     value: "6379"
   - name: REDIS_URL
     value: "redis-master.redis.svc.cluster.local"
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: aws-keys
+        key: AWS_ACCESS_KEY_ID
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: aws-keys
+        key: AWS_SECRET_ACCESS_KEY
