@@ -12,7 +12,7 @@ spec:
       containers:
       - name: script-runner
         image: alpine
-        command: ["/bin/sh", "-c", "sh /tmp/db_migration.sh $(GITHUB_PAT) $(MYSQL_USERNAME) $(MYSQL_PASSWORD) $(MYSQL_FQDN)"]
+        command: ["/bin/sh", "-c", "sh /tmp/db_migration.sh GITHUB_PAT MYSQL_USERNAME MYSQL_PASSWORD MYSQL_FQDN"]
         volumeMounts:
         - name: script-volume
           mountPath: /tmp

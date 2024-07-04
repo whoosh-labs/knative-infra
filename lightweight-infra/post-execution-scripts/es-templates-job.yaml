@@ -12,7 +12,7 @@ spec:
       containers:
         - name: script-runner
           image: alpine
-          command: ["/bin/sh", "-c", "sh /tmp/es-templates.sh ${GITHUB_PASSWORD} ${ELASTIC_SEARCH_PASSWORD}"]
+          command: ["/bin/sh", "-c", "sh /tmp/es-templates.sh GITHUB_PASSWORD ELASTIC_SEARCH_PASSWORD"]
           volumeMounts:
             - name: script-volume
               mountPath: /tmp
