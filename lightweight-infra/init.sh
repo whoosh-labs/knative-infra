@@ -2,6 +2,8 @@
 
 set -x  # Exit script on any error
 
+DOMAIN=$1
+
 az login --identity
 az keyvault secret show --name raga-test1-secrets --vault-name raga-test1-secrets --query value -o tsv > /tmp/secrets.json | tr -d '"'
 
@@ -144,10 +146,10 @@ for service in "${services[@]}"
 do
     echo "Installing Helm chart for $service"
   
-    helm install $service -f $service.yaml . -n raga
+    sudo -u ubuntu helm install $service -f $service.yaml . -n raga
 
     echo "Checking if pods are running for $service"
-    until kubectl get pods | grep $service | grep Running
+    until sudo -u ubuntu kubectl get pods | grep $service | grep Running
     do
         echo "Waiting for pods to be ready..."
         sleep 10
@@ -156,4 +158,54 @@ do
 done
 echo "All services deployed successfully"
 
-minikube service frontend-nodeport -n raga --url
+sudo -u ubuntu minikube service frontend-nodeport -n raga --url
+
+
+## proxy configuration
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod proxy_balancer
+sudo a2enmod lbmethod_byrequests
+
+
+cat <<EOF > /etc/apache2/sites-available/reverse-proxy-frontend.conf
+<VirtualHost *:80>
+    ServerName $DOMAIN
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    <Proxy *>
+        Require all granted
+    </Proxy>
+
+    ProxyPass / http://192.168.49.2:31000/
+    ProxyPassReverse / http://192.168.49.2:31000/
+
+    ErrorLog \${APACHE_LOG_DIR}/error.log
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+EOF
+
+# cat <<EOF > /etc/apache2/sites-available/reverse-proxy-backend.conf
+# <VirtualHost *:80>
+#     ServerName backend.$DOMAIN
+
+#     ProxyRequests Off
+#     ProxyPreserveHost On
+
+#     <Proxy *>
+#         Require all granted
+#     </Proxy>
+
+#     ProxyPass / http://192.168.49.2:32000/
+#     ProxyPassReverse / http://192.168.49.2:32000/
+
+#     ErrorLog \${APACHE_LOG_DIR}/error.log
+#     CustomLog \${APACHE_LOG_DIR}/access.log combined
+# </VirtualHost>
+# EOF
+
+sudo a2ensite reverse-proxy-frontend.conf
+# sudo a2ensite reverse-proxy-backend.conf
+sudo systemctl restart apache2
