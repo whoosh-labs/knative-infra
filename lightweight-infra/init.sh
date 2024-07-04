@@ -37,7 +37,7 @@ sudo install minikube-linux-amd64 /usr/local/bin/minikube
 sudo usermod -aG docker ubuntu
 
 # Start Minikube (adjust options as needed)
-sudo -u ubuntu minikube start --cpus 6 --memory 8192 --driver=docker
+sudo -u ubuntu minikube start --cpus 14 --memory 30720 --driver=docker
 sleep 30
 sudo -u ubuntu minikube status | grep -i "host" | awk '{print $2}'
 
@@ -154,11 +154,24 @@ sudo -u ubuntu kubectl create secret generic model-packager -n raga-models --fro
 sudo -u ubuntu kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"') --docker-password=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --docker-email=$(jq ".DOCKERHUB_EMAIL" /tmp/secrets.json | tr -d '"') -n raga
 sudo -u ubuntu kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"') --docker-password=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --docker-email=$(jq ".DOCKERHUB_EMAIL" /tmp/secrets.json | tr -d '"') -n raga-models
 
+
+until sudo -u ubuntu kubectl get pods -n mysql-operator | grep mycluster-0 | grep Running
+do
+    echo "Waiting for mysql cluster pods to be ready..."
+    sleep 10
+done
+
+sed -i "s/GITHUB_PASSWORD/$(jq ".GITHUB_PASWWROD" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/es-templates-job.yaml
+sed -i "s/ELASTIC_SEARCH_PASSWORD/$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/es-templates-job.yaml
+sudo -u ubuntu kubectl apply -f /knative-infra/lightweight-infra/post-execution-scripts/es-templates-configmap.yaml
+sudo -u ubuntu kubectl apply -f /knative-infra/lightweight-infra/post-execution-scripts/es-templates-job.yaml
+
+
 cd raga-testing-platform
 
-services=("frontend") 
+# services=("frontend") 
 
-# services=( "frontend" "backend") 
+services=( "frontend" "backend") 
 
 for service in "${services[@]}"
 do
@@ -176,6 +189,21 @@ do
 done
 echo "All services deployed successfully"
 sudo -u ubuntu minikube service frontend-nodeport -n raga --url
+
+
+
+sed -i "s/CUSTOMER_NAME/$CUSTOMER_NAME/g" /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+sed -i "s/ENVIRONMENT_NAME/$ENVIRONEMNT_NAME/g" /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+sed -i "s/AWS_S3_BUCKET_REGION/$(jq ".AWS_S3_BUCKET_REGION" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+sed -i "s/ELASTIC_SEARCH_PASSWORD/$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+sed -i "s/MYSQL_FQDN/mycluster.mysql-operator.svc.cluster.local/g" /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+sed -i "s/MYSQL_USERNAME/$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+sed -i "s/MYSQL_PASSWORD/$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+sed -i "s/AWS_S3_BUCKET/$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"')"/g /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
+
+
+sudo -u ubuntu kubectl apply -f /knative-infra/lightweight-infra/post-execution-scripts/property-manager-config.yaml
+sudo -u ubuntu kubectl apply -f /knative-infra/lightweight-infra/post-execution-scripts/property-manager-job.yaml
 
 
 ## proxy configuration
