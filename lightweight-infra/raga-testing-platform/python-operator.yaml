@@ -1,6 +1,6 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/ragaai/lightweight-poc"
+  repository: "ragaai/lightweight-poc"
   tag: "python-operator-1"
   pullPolicy: IfNotPresent
 imagePullSecrets:

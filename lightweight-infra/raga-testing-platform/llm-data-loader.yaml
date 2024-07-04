@@ -106,3 +106,5 @@ env:
     value: "NA"
   - name: STATUS_UPDATER_QUEUE_URL
     value: "NA"
+  - name: ENV_TYPE
+    value: "AWS"

@@ -62,3 +62,5 @@ env:
     value: "knative"
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
     value: "http://status-updater.raga.svc.cluster.local"
+  - name: ENV_TYPE
+    value: "AWS"
