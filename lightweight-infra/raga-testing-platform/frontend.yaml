@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/lightweight-poc"
-  tag: "frontend-4"
+  tag: "frontend-5"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

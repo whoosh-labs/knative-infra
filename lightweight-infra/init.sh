@@ -148,7 +148,7 @@ sudo -u ubuntu kubectl create ns raga-models
 sudo -u ubuntu kubectl create secret generic backend -n raga --from-literal=API_HOST=https://backend.${DOMAIN}/api --from-literal=AWS_BUCKET_NAME=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"') --from-literal=AWS_REGION=$(jq ".AWS_S3_BUCKET_REGION" /tmp/secrets.json | tr -d '"') --from-literal=FRONTEND_URL=https://${DOMAIN} --from-literal=GITHUB_CLIENT_ID="NA" --from-literal=GITHUB_CLIENT_SECRET="NA" --from-literal=GOOGLE_CLIENT_ID="NA" --from-literal=GOOGLE_CLIENT_SECRET="NA" --from-literal=JWT_SECRET="NA" --from-literal=MYSQL_PASSWORD=$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=MYSQL_URL="mycluster.mysql-operator.svc.cluster.local" --from-literal=MYSQL_USERNAME=$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"') --from-literal=AES_ENCRYPTION_KEY="$(jq ".AES_ENCRYPTION_KEY" /tmp/secrets.json | tr -d '"')" --from-literal=ENV_TYPE="$ENVIRONEMNT_NAME"
 sudo -u ubuntu kubectl create secret generic cluster-operators -n raga --from-literal=ELASTIC_PASSWORD=$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=S3_BUCKET=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"')
 sudo -u ubuntu kubectl create secret generic llm-data-loader -n raga --from-literal=ELASTIC_PASSWORD=$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=S3_BUCKET=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"')
-sudo -u ubuntu kubectl create secret generic llm-platform-api -n raga --from-literal=AES_ENCRYPTION_KEY=$(jq ".AES_ENCRYPTION_KEY" /tmp/secrets.json | tr -d '"') --from-literal=API_HOST=https://backend.${DOMAIN}/api --from-literal=AWS_BUCKET_NAME=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"') --from-literal=AWS_REGION=$(jq ".AWS_S3_BUCKET_REGION" /tmp/secrets.json | tr -d '"') --from-literal=ENV_TYPE=$(jq ".ENV_NAME" /tmp/secrets.json | tr -d '"') --from-literal=FRONTEND_URL="https://llm-${DOMAIN}" --from-literal=GITHUB_CLIENT_ID="NA" --from-literal=GITHUB_CLIENT_SECRET="NA" --from-literal=GOOGLE_CLIENT_ID="NA" --from-literal=GOOGLE_CLIENT_SECRET="NA" --from-literal=JWT_SECRET="NA" --from-literal=MYSQL_PASSWORD=$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=MYSQL_URL="mycluster.mysql-operator.svc.cluster.local" --from-literal=MYSQL_USERNAME="$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')" --from-literal=AES_ENCRYPTION_KEY="$(jq ".AES_ENCRYPTION_KEY" /tmp/secrets.json | tr -d '"')" --from-literal=ENV_TYPE="$ENVIRONEMNT_NAME"
+sudo -u ubuntu kubectl create secret generic llm-platform-api -n raga --from-literal=AES_ENCRYPTION_KEY=$(jq ".AES_ENCRYPTION_KEY" /tmp/secrets.json | tr -d '"') --from-literal=API_HOST=https://backend.${DOMAIN}/api --from-literal=AWS_BUCKET_NAME=$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"') --from-literal=AWS_REGION=$(jq ".AWS_S3_BUCKET_REGION" /tmp/secrets.json | tr -d '"') --from-literal=ENV_TYPE="$ENVIRONEMNT_NAME" --from-literal=FRONTEND_URL="https://llm-${DOMAIN}" --from-literal=GITHUB_CLIENT_ID="NA" --from-literal=GITHUB_CLIENT_SECRET="NA" --from-literal=GOOGLE_CLIENT_ID="NA" --from-literal=GOOGLE_CLIENT_SECRET="NA" --from-literal=JWT_SECRET="NA" --from-literal=MYSQL_PASSWORD=$(jq ".MYSQL_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=MYSQL_URL="mycluster.mysql-operator.svc.cluster.local" --from-literal=MYSQL_USERNAME="$(jq ".MYSQL_USERNAME" /tmp/secrets.json | tr -d '"')" 
 sudo -u ubuntu kubectl create secret generic llm-platform-operators -n raga --from-literal=ELASTIC_PASSWORD=$(jq ".ELASTIC_SEARCH_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=S3_BUCKET="$(jq ".AWS_S3_BUCKET" /tmp/secrets.json | tr -d '"')"
 sudo -u ubuntu kubectl create secret generic model-packager -n raga-models --from-literal=DOCKERHUB_PASSWORD=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --from-literal=DOCKERHUB_USERNAME="$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"')"
 sudo -u ubuntu kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=$(jq ".DOCKERHUB_USERNAME" /tmp/secrets.json | tr -d '"') --docker-password=$(jq ".DOCKERHUB_PASSWORD" /tmp/secrets.json | tr -d '"') --docker-email=$(jq ".DOCKERHUB_EMAIL" /tmp/secrets.json | tr -d '"') -n raga
@@ -158,7 +158,7 @@ sudo -u ubuntu kubectl create secret generic aws-keys -n raga --from-literal=AWS
 
 until sudo -u ubuntu kubectl get pods -n elk | grep elastic-serch-cluster-es-masters-0 | grep "1/1" | grep "Running"
 do
-    echo "Waiting for mysql cluster pods to be ready..."
+    echo "Waiting for elastic search cluster pods to be ready..."
     sleep 10
 done
 
@@ -231,8 +231,66 @@ sudo a2enmod proxy_balancer
 sudo a2enmod lbmethod_byrequests
 
 sudo -u ubuntu minikube addons enable ingress
+until sudo -u ubuntu kubectl get pods -n ingress-nginx | grep ingress-nginx-controller| grep "1/1" | grep "Running"
+do
+    echo "Waiting for ingress-nginx-controller pods to be ready..."
+    sleep 10
+done
+
 sudo -u ubuntu minikube service ingress-nginx-controller -n ingress-nginx - url > /tmp/ingress-output
 sudo -u ubuntu kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml
+
+until sudo -u ubuntu kubectl get pods -n cert-manager | grep cert-manager-webhook | grep "1/1" | grep "Running"
+do
+    echo "Waiting for cert-manager cluster pods to be ready..."
+    sleep 10
+done
+
+cat <<EOF > /tmp/letsencrypt.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: naveen.gogu@raga.ai
+    privateKeySecretRef:
+      name: letsencrypt
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+EOF
+sudo -u ubuntu kubectl apply -f /tmp/letsencrypt.yaml -n raga
+
+cat <<EOF > /tmp/frontend.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend
+  annotations:
+   kubernetes.io/ingress.class: nginx
+   cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  rules:
+  - host: $DOMAIN
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port:
+                number: 80
+  tls:
+      - hosts:
+          - $DOMAIN
+        secretName: tls-2048-raga
+EOF
+sudo -u ubuntu kubectl apply -f /tmp/frontend.yaml -n raga
+
 
 INGRES_443=$(cat /tmp/ingress-output  | grep "http/80" | head -n 1 | awk '{print $8}')
 INGRES_80=$(cat /tmp/ingress-output  | grep " https/443" | awk '{print $6}')
@@ -281,56 +339,4 @@ EOF
 sudo a2ensite reverse-proxy-ingress.conf
 sudo a2ensite reverse-proxy-ingress-ssl.conf
 sudo systemctl restart apache2
-
-
-until sudo -u ubuntu kubectl get pods -n cert-manager | grep cert-manager-webhook | grep "1/1" | grep "Running"
-do
-    echo "Waiting for cert-manager cluster pods to be ready..."
-    sleep 10
-done
-
-cat <<EOF > /tmp/letsencrypt.yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: naveen.gogu@raga.ai
-    privateKeySecretRef:
-      name: letsencrypt
-    solvers:
-      - http01:
-          ingress:
-            class: nginx
-EOF
-sudo -u ubuntu kubectl apply -f /tmp/letsencrypt.yaml
-
-DOMAIN="test2.ragaai.ai"
-cat <<EOF > /tmp/frontend.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: frontend
-  annotations:
-   kubernetes.io/ingress.class: nginx
-   cert-manager.io/cluster-issuer: letsencrypt
-spec:
-  rules:
-  - host: $DOMAIN
-    http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: frontend
-              port:
-                number: 80
-  tls:
-      - hosts:
-          - $DOMAIN
-        secretName: tls-2048-raga
-EOF
-sudo -u ubuntu kubectl apply -f /tmp/frontend.yaml
+sudo systemctl status apache2
