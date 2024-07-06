@@ -19,6 +19,9 @@ spec:
       - env: {{ .Values.env | toYaml | nindent 10 }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: IfNotPresent
+        {{- if .Values.serviceAccount.create }}
+        serviceAccountName: {{ .Values.serviceAccount.name }}
+        {{- end }}
         livenessProbe: {{ .Values.livenessProbe | toYaml | nindent 10 }}
         name: user-container
         ports:

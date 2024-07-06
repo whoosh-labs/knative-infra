@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/models"
-  tag: "model-executor-6"
+  tag: "model-packager-8"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true
@@ -51,13 +51,8 @@ containerConcurrency:
   limit: 1
 PVC:
   enable: true
-  cloud: azure #allowable values aws | azure
   name: "model-executor-pvc"
-  storageClassName: "azurefile"
-  #following values required for only aws efs
-  storage: 50Gi
-  csiDriver: "efs.csi.aws.com"
-  FilesystemID: "fs-0b2eb5c3625e0aed9"
+  storageClassName: "standard"
 env:
   - name: AWS_ACCESS_KEY_ID
     valueFrom:

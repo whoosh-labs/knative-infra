@@ -51,13 +51,9 @@ containerConcurrency:
   limit: 1
 PVC:
   enable: false
-  cloud: azure #allowable values aws | azure
+  cloud: azure 
   name: "model-packager-pvc"
-  storageClassName: "azurefile"
-  #following values required for only aws efs
-  storage: 50Gi
-  csiDriver: "efs.csi.aws.com"
-  FilesystemID: "fs-0b2eb5c3625e0aed9"
+  storageClassName: "standard"
 env:
   - name: DOCKERHUB_USERNAME
     valueFrom:
@@ -69,6 +65,11 @@ env:
       secretKeyRef:
         name: model-packager
         key: DOCKERHUB_PASSWORD
+  - name: AES_ENCRYPTION_KEY
+    valueFrom:
+      secretKeyRef:
+        name: model-packager
+        key: AES_ENCRYPTION_KEY
   - name: SERVICE_INVOCATION_METHOD
     value: 'knative'
   - name: STATUS_UPDATER_KAFKA_BROKER_URL

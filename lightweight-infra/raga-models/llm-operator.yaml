@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/llm-operator-kantive-release"
-  tag: "11-268c9bf"
+  repository: "ragaai/models"
+  tag: "model-executor-6"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
