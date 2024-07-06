@@ -189,5 +189,3 @@ data:
             \"umap-operator:STATUS_UPDATER_QUEUE\": \"raga-dev-status-updater-input-queue.fifo\"
         }
     }"
-
-  # End of script

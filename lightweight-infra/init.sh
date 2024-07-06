@@ -340,3 +340,25 @@ sudo a2ensite reverse-proxy-ingress.conf
 sudo a2ensite reverse-proxy-ingress-ssl.conf
 sudo systemctl restart apache2
 sudo systemctl status apache2
+
+#### onboard raga models
+kubectl apply -f /knative-infra/lightweight-infra/model-packager-role.yaml
+
+cd knative-infra/lightweight-infra/raga-models
+
+services=( "faster-rcnn-model" "llm-operator" "model-executor" "model-packager") 
+
+for service in "${services[@]}"
+do
+    echo "Installing Helm chart for $service"
+  
+    sudo -u ubuntu helm install $service -f $service.yaml . -n raga-models
+
+    echo "Checking if pods are running for $service"
+    until sudo -u ubuntu kubectl get pods -n raga-models | grep "1/1" | grep $service | grep Running
+    do
+        echo "Waiting for pods to be ready..."
+        sleep 10
+    done
+    echo "Pods are running for $service"
+done

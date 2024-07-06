@@ -1,0 +1,29 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: model-packager-role
+  namespace: raga-models
+rules:
+- apiGroups: ["serving.knative.dev"]
+  resources: ["services"]
+  verbs: ["get", "list", "watch", "create", "delete", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: model-packager-role-binding
+  namespace: raga-models
+subjects:
+- kind: ServiceAccount
+  name: model-packager
+  namespace: raga-models
+roleRef:
+  kind: Role
+  name: model-packager-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: model-packager
+  namespace: raga-models
