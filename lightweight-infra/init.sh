@@ -355,7 +355,7 @@ sleep 2
 
 sudo rm /etc/nginx/sites-available/default
 
-sudo cat <<EOF > /etc/nginx/sites-available/default
+sudo cat <<'EOF' > /etc/nginx/sites-available/default
     server {
         listen 80;
         location / {
