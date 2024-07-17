@@ -6,8 +6,8 @@ DOMAIN=$1
 CUSTOMER_NAME=$2
 ENVIRONEMNT_NAME=$3
 
-az login --identity
-az keyvault secret show --name $CUSTOMER_NAME-$ENVIRONEMNT_NAME-secrets --vault-name $CUSTOMER_NAME-$ENVIRONEMNT_NAME-secrets --query value -o tsv > /tmp/secrets.json | tr -d '"'
+# az login --identity
+# az keyvault secret show --name $CUSTOMER_NAME-$ENVIRONEMNT_NAME-secrets --vault-name $CUSTOMER_NAME-$ENVIRONEMNT_NAME-secrets --query value -o tsv > /tmp/secrets.json | tr -d '"'
 
 # Add Docker's official GPG key and repository
 sudo apt-get update
@@ -225,121 +225,165 @@ done
 
 
 ## proxy configuration
-sudo a2enmod proxy
-sudo a2enmod proxy_http
-sudo a2enmod proxy_balancer
-sudo a2enmod lbmethod_byrequests
+# sudo a2enmod proxy
+# sudo a2enmod proxy_http
+# sudo a2enmod proxy_balancer
+# sudo a2enmod lbmethod_byrequests
 
-sudo -u ubuntu minikube addons enable ingress
-until sudo -u ubuntu kubectl get pods -n ingress-nginx | grep ingress-nginx-controller| grep "1/1" | grep "Running"
-do
-    echo "Waiting for ingress-nginx-controller pods to be ready..."
-    sleep 10
-done
+# sudo -u ubuntu minikube addons enable ingress
+# until sudo -u ubuntu kubectl get pods -n ingress-nginx | grep ingress-nginx-controller| grep "1/1" | grep "Running"
+# do
+#     echo "Waiting for ingress-nginx-controller pods to be ready..."
+#     sleep 10
+# done
 
-sudo -u ubuntu minikube service ingress-nginx-controller -n ingress-nginx - url > /tmp/ingress-output
-sudo -u ubuntu kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml
+# sudo -u ubuntu minikube service ingress-nginx-controller -n ingress-nginx - url > /tmp/ingress-output
+# sudo -u ubuntu kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml
 
-until sudo -u ubuntu kubectl get pods -n cert-manager | grep cert-manager-webhook | grep "1/1" | grep "Running"
-do
-    echo "Waiting for cert-manager cluster pods to be ready..."
-    sleep 10
-done
+# until sudo -u ubuntu kubectl get pods -n cert-manager | grep cert-manager-webhook | grep "1/1" | grep "Running"
+# do
+#     echo "Waiting for cert-manager cluster pods to be ready..."
+#     sleep 10
+# done
 
-cat <<EOF > /tmp/letsencrypt.yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: naveen.gogu@raga.ai
-    privateKeySecretRef:
-      name: letsencrypt
-    solvers:
-      - http01:
-          ingress:
-            class: nginx
+# cat <<EOF > /tmp/letsencrypt.yaml
+# apiVersion: cert-manager.io/v1
+# kind: ClusterIssuer
+# metadata:
+#   name: letsencrypt
+# spec:
+#   acme:
+#     server: https://acme-v02.api.letsencrypt.org/directory
+#     email: naveen.gogu@raga.ai
+#     privateKeySecretRef:
+#       name: letsencrypt
+#     solvers:
+#       - http01:
+#           ingress:
+#             class: nginx
+# EOF
+# sudo -u ubuntu kubectl apply -f /tmp/letsencrypt.yaml -n raga
+
+# cat <<EOF > /tmp/frontend.yaml
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: frontend
+#   annotations:
+#    kubernetes.io/ingress.class: nginx
+#    cert-manager.io/cluster-issuer: letsencrypt
+# spec:
+#   rules:
+#   - host: $DOMAIN
+#     http:
+#       paths:
+#         - path: /
+#           pathType: Prefix
+#           backend:
+#             service:
+#               name: frontend
+#               port:
+#                 number: 80
+#   tls:
+#       - hosts:
+#           - $DOMAIN
+#         secretName: tls-2048-raga
+# EOF
+# sudo -u ubuntu kubectl apply -f /tmp/frontend.yaml -n raga
+
+
+# INGRES_443=$(cat /tmp/ingress-output  | grep "http/80" | head -n 1 | awk '{print $8}')
+# INGRES_80=$(cat /tmp/ingress-output  | grep " https/443" | awk '{print $6}')
+
+
+# cat <<EOF > /etc/apache2/sites-available/reverse-proxy-ingress.conf
+# <VirtualHost *:80>
+#     ServerName localhost
+#     ServerAlias *
+
+#     ProxyRequests Off
+#     ProxyPreserveHost On
+
+#     <Proxy *>
+#         Require all granted
+#     </Proxy>
+
+#     ProxyPass / $INGRES_80/
+#     ProxyPassReverse / $INGRES_80/
+
+#     ErrorLog \${APACHE_LOG_DIR}/error.log
+#     CustomLog \${APACHE_LOG_DIR}/access.log combined
+# </VirtualHost>
+# EOF
+
+# cat <<EOF > /etc/apache2/sites-available/reverse-proxy-ingress-ssl.conf
+# <VirtualHost *:443>
+#     ServerName localhost
+#     ServerAlias *
+
+#     ProxyRequests Off
+#     ProxyPreserveHost On
+
+#     <Proxy *>
+#         Require all granted
+#     </Proxy>
+
+#     ProxyPass / $INGRES_443/
+#     ProxyPassReverse / $INGRES_443/
+
+#     ErrorLog \${APACHE_LOG_DIR}/error.log
+#     CustomLog \${APACHE_LOG_DIR}/access.log combined
+# </VirtualHost>
+# EOF
+
+# sudo a2ensite reverse-proxy-ingress.conf
+# sudo a2ensite reverse-proxy-ingress-ssl.conf
+# sudo systemctl restart apache2
+# sudo systemctl status apache2
+sudo systemctl stop apache2
+
+sleep 5
+###########################
+# NGINX SETUP 
+###########################
+
+
+sudo apt install nginx -y
+sudo ufw allow 'Nginx HTTP'
+
+sleep 2
+
+sudo rm /etc/nginx/sites-available/default
+
+sudo cat <<EOF > /etc/nginx/sites-available/default
+    server {
+        listen 80;
+        location / {
+            proxy_pass http://192.168.49.2:31000; # frontend
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /api {
+            proxy_pass http://192.168.49.2:32000; # backend
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
 EOF
-sudo -u ubuntu kubectl apply -f /tmp/letsencrypt.yaml -n raga
 
-cat <<EOF > /tmp/frontend.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: frontend
-  annotations:
-   kubernetes.io/ingress.class: nginx
-   cert-manager.io/cluster-issuer: letsencrypt
-spec:
-  rules:
-  - host: $DOMAIN
-    http:
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: frontend
-              port:
-                number: 80
-  tls:
-      - hosts:
-          - $DOMAIN
-        secretName: tls-2048-raga
-EOF
-sudo -u ubuntu kubectl apply -f /tmp/frontend.yaml -n raga
+# Testing the Nginx configuration for syntax errors
+sudo nginx -t
 
+sudo systemctl reload nginx
 
-INGRES_443=$(cat /tmp/ingress-output  | grep "http/80" | head -n 1 | awk '{print $8}')
-INGRES_80=$(cat /tmp/ingress-output  | grep " https/443" | awk '{print $6}')
+sleep 5
 
-
-cat <<EOF > /etc/apache2/sites-available/reverse-proxy-ingress.conf
-<VirtualHost *:80>
-    ServerName localhost
-    ServerAlias *
-
-    ProxyRequests Off
-    ProxyPreserveHost On
-
-    <Proxy *>
-        Require all granted
-    </Proxy>
-
-    ProxyPass / $INGRES_80/
-    ProxyPassReverse / $INGRES_80/
-
-    ErrorLog \${APACHE_LOG_DIR}/error.log
-    CustomLog \${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-EOF
-
-cat <<EOF > /etc/apache2/sites-available/reverse-proxy-ingress-ssl.conf
-<VirtualHost *:443>
-    ServerName localhost
-    ServerAlias *
-
-    ProxyRequests Off
-    ProxyPreserveHost On
-
-    <Proxy *>
-        Require all granted
-    </Proxy>
-
-    ProxyPass / $INGRES_443/
-    ProxyPassReverse / $INGRES_443/
-
-    ErrorLog \${APACHE_LOG_DIR}/error.log
-    CustomLog \${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-EOF
-
-sudo a2ensite reverse-proxy-ingress.conf
-sudo a2ensite reverse-proxy-ingress-ssl.conf
-sudo systemctl restart apache2
-sudo systemctl status apache2
 
 #### onboard raga models
 kubectl apply -f /knative-infra/lightweight-infra/model-packager-role.yaml
