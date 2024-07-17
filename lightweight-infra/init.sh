@@ -127,7 +127,7 @@ do
     sleep 10
 done
 
-sleep 20 
+sleep 30 
 sudo -u ubuntu kubectl apply -f /knative-infra/lightweight-infra/post-execution-scripts/export-db-to-nodeport.yaml
 sudo -u ubuntu minikube service mycluster-nodeport -n mysql-operator --url
 
@@ -349,6 +349,7 @@ sleep 5
 
 
 sudo apt install nginx -y
+
 sudo ufw allow 'Nginx HTTP'
 
 sleep 2
