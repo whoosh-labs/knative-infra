@@ -456,8 +456,8 @@ server {
     listen 443 ssl;
     server_name DOMAINPARAMETER;
     
-    ssl_certificate /etc/letsencrypt/live/DOMAINPARAMETER/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/DOMAINPARAMETER/privkey.pem; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/DOMAINPARAMETERKEY/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/DOMAINPARAMETERKEY/privkey.pem; # managed by Certbot
 
     proxy_request_buffering off;
     #include snippets/ssl-params.conf;
@@ -484,8 +484,8 @@ EOF
 echo $DOMAIN
 sudo sed -i "s/DOMAINPARAMETER;/${DOMAIN};/g" /etc/nginx/sites-available/default
 sudo sed -i "s/DOMAINPARAMETER;/${DOMAIN};/g" /etc/nginx/sites-available/default
-sudo sed -i "s/DOMAINPARAMETER/${DOMAIN};/g" /etc/nginx/sites-available/default
-sudo sed -i "s/DOMAINPARAMETER/${DOMAIN};/g" /etc/nginx/sites-available/default
+sudo sed -i "s/DOMAINPARAMETERKEY/${DOMAIN}/g" /etc/nginx/sites-available/default
+sudo sed -i "s/DOMAINPARAMETERKEY/${DOMAIN}/g" /etc/nginx/sites-available/default
 
 sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos -m naveen.gogu@raga.ai
 
