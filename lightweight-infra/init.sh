@@ -389,6 +389,53 @@ sleep 2
 sudo rm /etc/nginx/sites-available/default
 
 sudo cat <<'EOF' > /etc/nginx/sites-available/default
+   server {
+        listen 80;
+        location / {
+            proxy_pass http://192.168.49.2:31000; # frontend
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /api {
+            proxy_pass http://192.168.49.2:32000; # backend
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+
+EOF
+
+
+
+sudo systemctl restart nginx
+
+sleep 5
+
+
+
+
+####################################################
+
+
+CERTBOT SSL CONFIGURATION
+
+
+####################################################
+
+sudo rm /etc/nginx/sites-available/default
+
+
+sudo apt install certbot python3-certbot-nginx
+
+sleep 5
+
+sudo cat <<'EOF' > /etc/nginx/sites-available/default
 server {
     listen 80;
     server_name defaultDomain;
@@ -428,15 +475,21 @@ EOF
 
 sudo sed -i "s/defaultDomain/${DOMAIN}/g" /etc/nginx/sites-available/default
 
-sleep 2
+
+sudo ufw allow 'Nginx Full'
+sudo ufw delete allow 'Nginx HTTP'
 
 
-# Testing the Nginx configuration for syntax errors
-sudo nginx -t
-
+sudo certbot run -n --nginx --agree-tos -d ${Domain}  -m  naveen.gogu@raga.ai  --no-redirect
 
 sleep 5
 
+sudo systemctl restart nginx
+
+sleep 10
+
+
+######################################################
 
 #### onboard raga models
 kubectl apply -f /knative-infra/lightweight-infra/model-packager-role.yaml
