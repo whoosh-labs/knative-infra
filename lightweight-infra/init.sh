@@ -342,10 +342,43 @@ done
 # sudo systemctl status apache2
 sudo systemctl stop apache2
 
+
+
+############################################
+
+
+DOMAIN MAPPING CHECKING 
+
+
+##############################################
+
+while true; do
+    # Get the IP address of the domain
+    IP=$(dig +short "${DOMAIN}")
+
+    if [ -n "$IP" ]; then
+        echo "Domain ${DOMAIN} is resolved to an IP."
+        # Exit the script once the domain resolves
+        exit 0
+    else
+        echo "Domain ${DOMAIN} is not resolved. Checking again in 5 seconds..."
+        sleep 5
+    fi
+done
+
+
+##################################################
+
+
+
+
+
 sleep 5
 ###########################
 # NGINX SETUP 
 ###########################
+
+
 
 
 sudo apt install nginx -y
@@ -394,10 +427,14 @@ server {
 
 EOF
 
+sudo sed -i "s/defaultDomain/${DOMAIN}/g" /etc/nginx/sites-available/default
+
+sleep 2
+
+
 # Testing the Nginx configuration for syntax errors
 sudo nginx -t
 
-sudo systemctl reload nginx
 
 sleep 5
 
