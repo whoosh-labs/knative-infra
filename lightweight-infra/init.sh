@@ -433,7 +433,7 @@ CERTBOT SSL CONFIGURATION
 
 
 
-sudo apt install certbot python3-certbot-nginx
+sudo apt install certbot python3-certbot-nginx -y
 
 sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos -m naveen.gogu@raga.ai
 
