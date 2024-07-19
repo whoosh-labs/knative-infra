@@ -5,6 +5,7 @@ set -x  # Exit script on any error
 DOMAIN=$1
 CUSTOMER_NAME=$2
 ENVIRONEMNT_NAME=$3
+CUSTOMER_EMAIL=$4
 
 # az login --identity
 # az keyvault secret show --name $CUSTOMER_NAME-$ENVIRONEMNT_NAME-secrets --vault-name $CUSTOMER_NAME-$ENVIRONEMNT_NAME-secrets --query value -o tsv > /tmp/secrets.json | tr -d '"'
@@ -435,7 +436,7 @@ CERTBOT SSL CONFIGURATION
 
 sudo apt install certbot python3-certbot-nginx -y
 
-sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos -m naveen.gogu@raga.ai
+sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos -m ${CUSTOMER_EMAIL}
 
 
 sleep 5
