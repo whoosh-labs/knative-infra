@@ -357,24 +357,40 @@ sleep 2
 sudo rm /etc/nginx/sites-available/default
 
 sudo cat <<'EOF' > /etc/nginx/sites-available/default
-    server {
-        listen 80;
-        location / {
-            proxy_pass http://192.168.49.2:31000; # frontend
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
+server {
+    listen 80;
+    server_name defaultDomain;
+    return 301 https://$host$request_uri;
+}
 
-        location /api {
-            proxy_pass http://192.168.49.2:32000; # backend
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
+# HTTPS server block
+server {
+    listen 443 ssl;
+    server_name defaultDomain;
+    
+    ssl_certificate /etc/letsencrypt/live/final4.ragaai.ai/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/final4.ragaai.ai/privkey.pem; # managed by Certbot
+
+    proxy_request_buffering off;
+    #include snippets/ssl-params.conf;
+
+    location / {
+        proxy_pass http://192.168.49.2:31000; # frontend
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
+
+    location /api {
+        proxy_pass http://192.168.49.2:32000; # backend
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
 
 EOF
 
