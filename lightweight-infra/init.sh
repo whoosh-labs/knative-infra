@@ -359,7 +359,6 @@ while true; do
     if [ -n "$IP" ]; then
         echo "Domain ${DOMAIN} is resolved to an IP."
         # Exit the script once the domain resolves
-        exit 0
     else
         echo "Domain ${DOMAIN} is not resolved. Checking again in 5 seconds..."
         sleep 5
