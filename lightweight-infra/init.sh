@@ -358,12 +358,14 @@ while true; do
 
     if [ -n "$IP" ]; then
         echo "Domain ${DOMAIN} is resolved to an IP."
-        # Exit the script once the domain resolves
+        break
+        # Exit the loop once the domain resolves
     else
         echo "Domain ${DOMAIN} is not resolved. Checking again in 5 seconds..."
         sleep 5
     fi
 done
+
 
 
 ##################################################
@@ -377,9 +379,6 @@ sleep 5
 # NGINX SETUP 
 ###########################
 
-
-
-
 sudo apt install nginx -y
 
 sudo ufw allow 'Nginx HTTP'
@@ -391,6 +390,7 @@ sudo rm /etc/nginx/sites-available/default
 sudo cat <<'EOF' > /etc/nginx/sites-available/default
    server {
         listen 80;
+        server_name DOMAINPARAMETER;
         location / {
             proxy_pass http://192.168.49.2:31000; # frontend
             proxy_set_header Host $host;
@@ -412,6 +412,9 @@ sudo cat <<'EOF' > /etc/nginx/sites-available/default
 EOF
 
 
+sudo sed -i "s/DOMAINPARAMETER;/${DOMAIN};/g" /etc/nginx/sites-available/default
+
+
 
 sudo systemctl restart nginx
 
@@ -428,27 +431,33 @@ CERTBOT SSL CONFIGURATION
 
 ####################################################
 
-sudo rm /etc/nginx/sites-available/default
 
 
 sudo apt install certbot python3-certbot-nginx
 
+sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos -m naveen.gogu@raga.ai
+
+
 sleep 5
+
+
+
+sudo rm /etc/nginx/sites-available/default
 
 sudo cat <<'EOF' > /etc/nginx/sites-available/default
 server {
     listen 80;
-    server_name defaultDomain;
+    server_name DOMAINPARAMETER;
     return 301 https://$host$request_uri;
 }
 
 # HTTPS server block
 server {
     listen 443 ssl;
-    server_name defaultDomain;
+    server_name DOMAINPARAMETER;
     
-    ssl_certificate /etc/letsencrypt/live/final4.ragaai.ai/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/final4.ragaai.ai/privkey.pem; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/DOMAINPARAMETER/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/DOMAINPARAMETER/privkey.pem; # managed by Certbot
 
     proxy_request_buffering off;
     #include snippets/ssl-params.conf;
@@ -472,21 +481,27 @@ server {
 
 
 EOF
+echo $DOMAIN
+sudo sed -i "s/DOMAINPARAMETER;/${DOMAIN};/g" /etc/nginx/sites-available/default
+sudo sed -i "s/DOMAINPARAMETER;/${DOMAIN};/g" /etc/nginx/sites-available/default
+sudo sed -i "s/DOMAINPARAMETER/${DOMAIN};/g" /etc/nginx/sites-available/default
+sudo sed -i "s/DOMAINPARAMETER/${DOMAIN};/g" /etc/nginx/sites-available/default
 
-sudo sed -i "s/defaultDomain/${DOMAIN}/g" /etc/nginx/sites-available/default
-
+sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos -m naveen.gogu@raga.ai
 
 sudo ufw allow 'Nginx Full'
 sudo ufw delete allow 'Nginx HTTP'
 
 
-sudo certbot run -n --nginx --agree-tos -d ${Domain}  -m  naveen.gogu@raga.ai  --no-redirect
 
 sleep 5
 
 sudo systemctl restart nginx
 
 sleep 10
+
+
+######################################################
 
 
 ######################################################
