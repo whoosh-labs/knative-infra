@@ -1,191 +1,189 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: property-manager-config
-  namespace: raga
-data:
-  update_properties.sh: |
-    #!/bin/bash
-    set -x
+#!/bin/bash
 
-    CustomerName=$1
-    EnvName=$2
-    AWS_Region=$3
-    ELASTIC_PASSWORD=$4
-    MYSQL_HOST=$5
-    MYSQL_USERNAME=$6
-    MYSQL_PASSWORD=$7
-    AWS_S3_BUCKET_NAME=$8
-    AWS_AccountId="NA"
-    Domain_Name="backend.raga.svc.cluster.local"
-    StatusUpdaterFifoInputQueueUrl="https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/${CustomerName}-${EnvName}-status-updater-input-queue.fifo"
-    PythonOperatorsBatchProcessorFifoInputQueueUrl="https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/${CustomerName}-${EnvName}-python-operators-batch-processor-input-queue.fifo"
+CustomerName=$1
+EnvName=$2
+AWS_Region=$3
+ELASTIC_PASSWORD=$4
+RDSEndpoint=$5
+MYSQL_USERNAME=$6
+MYSQL_PASSWORD=$7
+AWS_AccountId="NA"
+Domain_Name="backend.raga.svc.cluster.local"
+StatusUpdaterFifoInputQueueUrl=https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/${CustomerName}-${EnvName}-status-updater-input-queue.fifo
+PythonOperatorsBatchProcessorFifoInputQueueUrl=https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/${CustomerName}-${EnvName}-python-operators-batch-processor-input-queue.fifo
 
-    apk add --no-cache curl jq bash
+apk add --no-cache curl jq bash
 
-    API_URL="http://backend.raga.svc.cluster.local/api/healthcheck"
+API_URL="http://${Domain_Name}/api/healthcheck"
 
-    # Number of attempts
-    MAX_ATTEMPTS=100
-    SLEEP_DURATION=30
+# Number of attempts
+MAX_ATTEMPTS=100
 
-    for i in $(seq 1 $MAX_ATTEMPTS); do
-      echo "Attempt #$i"
-      HTTP_STATUS=$(curl -s -o /${EnvName}/null -w "%{http_code}" $API_URL)
-      if [ "$HTTP_STATUS" -eq 200 ]; then
-        echo "API responded with status 200"
-        break
-      else
-        echo "API responded with status $HTTP_STATUS. Retrying in $SLEEP_DURATION seconds..."
-        sleep $SLEEP_DURATION
-      fi
-    done
+SLEEP_DURATION=30
 
-    RESPONSE=$(curl --silent --location "http://${Domain_Name}/api/authenticate" \
-    --header 'Content-Type: application/json' \
-    --data-raw '{
-        "username": "SYSTEM_ADMIN",
-        "password": "adminraga@1234"
-    }')
+for i in $(seq 1 $MAX_ATTEMPTS)
+do
+  echo "Attempt #$i"
+  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
+  if [ "$HTTP_STATUS" -eq 200 ]; then
+    echo "API responded with status 200"
+    break
+  else
+    echo "API responded with status $HTTP_STATUS. Retrying in $SLEEP_DURATION seconds..."
+    sleep $SLEEP_DURATION
+  fi
+done
 
-    Bearer_Token=$(echo $RESPONSE | jq -r '.token')
 
-    if [[ -z "$Bearer_Token" ]]; then
-        echo "Error: Failed to extract Bearer token. Response: $RESPONSE"
-        exit 1
-    fi
+RESPONSE=$(curl --silent --location "http://${Domain_Name}/api/authenticate" \
+--header 'Content-Type: application/json' \
+--data-raw "{
+    \"username\": \"SYSTEM_ADMIN\",
+    \"password\": \"adminraga@1234\"
+}")
 
-    curl --location "http://${Domain_Name}/api/properties/upload" \
-    --header 'Content-Type: application/json' \
-    --header "Authorization: Bearer ${Bearer_Token}" \
-    --data "{
-        \"properties\": {
-            \"backend:DOWNLOAD_DURATION\": \"12\",
-            \"backend:MAX_CONCURRENT_JOB_PER_ORG\": \"1000\",
-            \"backend:MAX_NUM_URLS\": \"50\",
-            \"backend:MAX_RETRIES\": \"2\",
-            \"backend:MAX_TEST_ON_DATASET\": \"1000\",
-            \"backend:MAX_URLS_PER_REQUEST\": \"20\",
-            \"backend:TMP_PATH_PREFIX\": \"tmp/auto_delete\",
-            \"backend:UPLOAD_DURATION\": \"12\",
-            \"batch-processor:ELASTIC_PASSWORD\": \"${ELASTIC_PASSWORD}\",
-            \"batch-processor:ELASTIC_URL\": \"http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200\",
-            \"batch-processor:ELASTIC_USERNAME\": \"elastic\",
-            \"batch-processor:LM_EXECUTER_QUEUE\": \"raga-dev-event-executor-input-queue.fifo\",
-            \"batch-processor:LM_MAX_CONCURRENCY\": \"20\",
-            \"batch-processor:NUMBA_CACHE_DIR\": \"/tmp\",
-            \"batch-processor:S3_BUCKET\": \"${AWS_S3_BUCKET_NAME}\",
-            \"batch-processor:SERVICE_INVOCATION_METHOD\": \"knative\",
-            \"batch-processor:SQS_ENDPOINT_URL\": \"https://sqs.${AWS_Region}.amazonaws.com\",
-            \"batch-processor:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/raga-dev-status-updater-input-queue.fifo\",
-            \"batch-processor:STATUS_UPDATER_QUEUE\": \"raga-dev-status-updater-input-queue.fifo\",
-            \"data-loader:ELASTIC_SEARCH_BASE_URL\": \"elastic-serch-cluster-es-http.elk.svc.cluster.local\",
-            \"data-loader:ELASTIC_SEARCH_HOST\": \"elastic-serch-cluster-es-http.elk.svc.cluster.local\",
-            \"data-loader:ELASTIC_SEARCH_PASSWORD\": \"${ELASTIC_PASSWORD}\",
-            \"data-loader:ELASTIC_SEARCH_PORT\": \"9200\",
-            \"data-loader:ELASTIC_SEARCH_USERNAME\": \"elastic\",
-            \"data-loader:SERVICE_INVOCATION_METHOD\": \"knative\",
-            \"data-loader:SQS_ENDPOINT_URL\": \"http://sqs.us-east-1.amazonaws.com\",
-            \"data-loader:STATUS_UPDATER_KAFKA_BROKER_URL\": \"http://status-updater.raga.svc.cluster.local\",
-            \"data-loader:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.us-east-1.amazonaws.com/NA/raga-dev4-status-updater-input-queue.fifo\",
-            \"data-loader:STATUS_UPDATER_QUEUE\": \"raga-dev4-status-updater-input-queue.fifo\",
-            \"es:ELASTIC_SEARCH_BASE_URL\": \"elastic-serch-cluster-es-http.elk.svc.cluster.local\",
-            \"es:ELASTIC_SEARCH_PASSWORD\": \"${ELASTIC_PASSWORD}\",
-            \"es:ELASTIC_SEARCH_PORT\": \"9200\",
-            \"es:ELASTIC_SEARCH_USERNAME\": \"elastic\",
-            \"es:ENV_TYPE\": \"devel\",
-            \"es:ES_EXPORT_NUM_RECORDS\": \"20000\",
-            \"es:LOGGING_LEVEL\": \"INFO\",
-            \"es:REDIS_URL\": \"redis://redis-master.redis.svc.cluster.local:6379\",
-            \"es:S3_IMAGE_BASE_URL\": \"https://ragaaimedia.s3.${AWS_Region}.amazonaws.com/\",
-            \"event-executor:AWS_ACCESS_KEY_ID\": \"na\",
-            \"event-executor:AWS_BUCKET_NAME\": \"${AWS_S3_BUCKET_NAME}\",
-            \"event-executor:AWS_SECRET_ACCESS_KEY\": \"na\",
-            \"event-executor:DATA_LOADER_CONCURRENCY\": \"10\",
-            \"event-executor:DATA_LOADER_KAFKA_BROKER_URL\": \"http://data-loader.raga.svc.cluster.local\",
-            \"event-executor:DATA_LOADER_QUEUE\": \"raga-dev4-data-loader-input-queue.fifo\",
-            \"event-executor:IMAGE_UPLOAD_S3_URL_PREFIX\": \"https://${AWS_S3_BUCKET_NAME}.s3.${AWS_Region}.amazonaws.com/1/lm_images/\",
-            \"event-executor:SERVICE_INVOCATION_METHOD\": \"knative\",
-            \"event-executor:STATUS_UPDATER_CONCURRENCY\": \"5\",
-            \"event-executor:STATUS_UPDATER_KAFKA_BROKER_URL\": \"http://status-updater.raga.svc.cluster.local\",
-            \"event-executor:STATUS_UPDATER_SQS_NAME\": \"raga-dev4-status-updater-input-queue.fifo\",
-            \"event-executor:${AWS_Region}\": \"${AWS_Region}\",
-            \"event-executor:VIDEO_DOWNLOAD_METHOD\": \"boto\",
-            \"llm-platform-api:FRONTEND_URL\": \"https://llm-dev4.ragaai.ai\",
-            \"llm-platform-api:MAX_NUM_URLS\": \"50\",
-            \"llm-platform-api:MAX_URLS_PER_REQUEST\": \"20\",
-            \"llm-platform-api:S3_BUCKET\": \"${AWS_S3_BUCKET_NAME}\",
-            \"llm-platform-api:TMP_PATH_PREFIX\": \"tmp/auto_delete\",
-            \"llm-platform-esservice:ELASTIC_SEARCH_BASE_URL\": \"elastic-serch-cluster-es-http.elk.svc.cluster.local\",
-            \"llm-platform-esservice:ELASTIC_SEARCH_PASSWORD\": \"${ELASTIC_PASSWORD}\",
-            \"llm-platform-esservice:ELASTIC_SEARCH_PORT\": \"9200\",
-            \"llm-platform-esservice:ELASTIC_SEARCH_USERNAME\": \"elastic\",
-            \"llm-platform-esservice:ES_EXPORT_NUM_RECORDS\": \"20000\",
-            \"llm-platform-operator:ELASTIC_PASSWORD\": \"${ELASTIC_PASSWORD}\",
-            \"llm-platform-operator:ELASTIC_URL\": \"http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200\",
-            \"llm-platform-operator:ELASTIC_USERNAME\": \"elastic\",
-            \"llm-platform-operator:SQS_ENDPOINT_URL\": \"https://sqs.ap-south-1.amazonaws.com\",
-            \"llm-platform-operator:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.ap-south-1.amazonaws.com/${AWS_AccountId}/raga-dev-status-updater-input-queue.fifo\",
-            \"llm-platform-status-updater:DATA_LOADER_QUEUE_URL\": \"https://sqs.us-east-1.amazonaws.com/NA/raga-dev4-data-loader-input-queue.fifo\",
-            \"llm-platform-status-updater:MYSQL_DATABASE\": \"llm_platform\",
-            \"llm-platform-status-updater:MYSQL_HOST\": \"${MYSQL_HOST}\",
-            \"llm-platform-status-updater:MYSQL_PASSWORD\": \"${MYSQL_PASSWORD}\",
-            \"llm-platform-status-updater:MYSQL_USERNAME\": \"${MYSQL_USERNAME}\",
-            \"llm-platform-status-updater:PYTHON_OPERATOR_QUEUE_URL\": \"https://sqs.us-east-1.amazonaws.com/NA/raga-dev4-python-operator-input-queue.fifo\",
-            \"llm-platform-status-updater:UMAP_OPERATOR_QUEUE_URL\": \"https://sqs.us-east-1.amazonaws.com/NA/raga-dev4-umap-operators-input-queue.fifo\",
-            \"python-operator:AWS_ACCESS_KEY_ID\": \"na\",
-            \"python-operator:AWS_SECRET_ACCESS_KEY\": \"na\",
-            \"python-operator:ELASTIC_PASSWORD\": \"${ELASTIC_PASSWORD}\",
-            \"python-operator:ELASTIC_URL\": \"http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200\",
-            \"python-operator:ELASTIC_USERNAME\": \"elastic\",
-            \"python-operator:FASTER_RCNN_MODEL_URL\": \"http://faster-rcnn-model.raga-models.svc.cluster.local/\",
-            \"python-operator:LLM_OPERATOR\": \"http://llm-operator.raga-models.svc.cluster.local\",
-            \"python-operator:LM_EXECUTER_QUEUE\": \"raga-dev-event-executor-input-queue.fifo\",
-            \"python-operator:LM_EXECUTOR_KAFKA_BROKER_URL\": \"http://event-executor.raga.svc.cluster.local\",
-            \"python-operator:LM_MAX_CONCURRENCY\": \"20\",
-            \"python-operator:NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA\": \"10\",
-            \"python-operator:NUMBA_CACHE_DIR\": \"/tmp\",
-            \"python-operator:PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL\": \"http://python-operator-batch-processor.raga.svc.cluster.local\",
-            \"python-operator:PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/raga-dev-python-operators-batch-processor-input-queue.fifo\",
-            \"python-operator:PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE\": \"raga-dev-python-operators-batch-processor-input-queue.fifo\",
-            \"python-operator:S3_BUCKET\": \"${AWS_S3_BUCKET_NAME}\",
-            \"python-operator:SERVICE_INVOCATION_METHOD\": \"knative\",
-            \"python-operator:SQS_ENDPOINT_URL\": \"https://sqs.${AWS_Region}.amazonaws.com\",
-            \"python-operator:STATUS_UPDATER_KAFKA_BROKER_URL\": \"http://status-updater.raga.svc.cluster.local\",
-            \"python-operator:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/raga-dev-status-updater-input-queue.fifo\",
-            \"python-operator:STATUS_UPDATER_QUEUE\": \"raga-dev-status-updater-input-queue.fifo\",
-            \"status-updater:DATA_LOADER_KAFKA_BROKER_URL\": \"http://data-loader.raga.svc.cluster.local\",
-            \"status-updater:DATA_LOADER_QUEUE_URL\": \"https://sqs.us-east-1.amazonaws.com/NA/raga-dev4-data-loader-input-queue.fifo\",
-            \"status-updater:MODEL_PACKAGER_KAFKA_BROKER_URL\": \"http://model-packager.raga-models.svc.cluster.local\",
-            \"status-updater:MYSQL_DATABASE\": \"testing_platform\",
-            \"status-updater:MYSQL_HOST\": \"${MYSQL_HOST}\",
-            \"status-updater:MYSQL_PASSWORD\": \"${MYSQL_PASSWORD}\",
-            \"status-updater:MYSQL_USERNAME\": \"${MYSQL_USERNAME}\",
-            \"status-updater:PYTHON_OPERATOR_KAFKA_BROKER_URL\": \"http://python-operator.raga.svc.cluster.local\",
-            \"status-updater:PYTHON_OPERATOR_QUEUE_URL\": \"https://sqs.us-east-1.amazonaws.com/NA/raga-dev4-python-operator-input-queue.fifo\",
-            \"status-updater:SERVICE_INVOCATION_METHOD\": \"knative\",
-            \"status-updater:UMAP_OPERATOR_KAFKA_BROKER_URL\": \"http://umap-operators.raga.svc.cluster.local\",
-            \"status-updater:UMAP_OPERATOR_QUEUE_URL\": \"https://sqs.us-east-1.amazonaws.com/NA/raga-dev4-umap-operators-input-queue.fifo\",
-            \"umap-operator:AWS_ACCESS_KEY_ID\": \"na\",
-            \"umap-operator:AWS_SECRET_ACCESS_KEY\": \"na\",
-            \"umap-operator:ELASTIC_PASSWORD\": \"${ELASTIC_PASSWORD}\",
-            \"umap-operator:ELASTIC_URL\": \"http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200\",
-            \"umap-operator:ELASTIC_USERNAME\": \"elastic\",
-            \"umap-operator:FASTER_RCNN_MODEL_URL\": \"http://faster-rcnn-model.raga-models.svc.cluster.local/\",
-            \"umap-operator:LLM_OPERATOR\": \"http://llm-operator.raga-models.svc.cluster.local\",
-            \"umap-operator:LM_EXECUTER_QUEUE\": \"raga-dev-event-executor-input-queue.fifo\",
-            \"umap-operator:LM_EXECUTOR_KAFKA_BROKER_URL\": \"http://event-executor.raga.svc.cluster.local\",
-            \"umap-operator:LM_MAX_CONCURRENCY\": \"20\",
-            \"umap-operator:NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA\": \"10\",
-            \"umap-operator:NUMBA_CACHE_DIR\": \"/tmp\",
-            \"umap-operator:PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL\": \"http://python-operator-batch-processor.raga.svc.cluster.local\",
-            \"umap-operator:PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/raga-dev-python-operators-batch-processor-input-queue.fifo\",
-            \"umap-operator:PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE\": \"raga-dev-python-operators-batch-processor-input-queue.fifo\",
-            \"umap-operator:S3_BUCKET\": \"${AWS_S3_BUCKET_NAME}\",
-            \"umap-operator:SERVICE_INVOCATION_METHOD\": \"knative\",
-            \"umap-operator:SQS_ENDPOINT_URL\": \"https://sqs.${AWS_Region}.amazonaws.com\",
-            \"umap-operator:STATUS_UPDATER_KAFKA_BROKER_URL\": \"http://status-updater.raga.svc.cluster.local\",
-            \"umap-operator:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/raga-dev-status-updater-input-queue.fifo\",
-            \"umap-operator:STATUS_UPDATER_QUEUE\": \"raga-dev-status-updater-input-queue.fifo\"
-        }
-    }"
+
+Bearer_Token=$(echo $RESPONSE | jq -r '.token')
+
+if [[ -z "$Bearer_Token" ]]; then
+    echo "Error: Failed to extract Bearer token. Response: $RESPONSE"
+    exit 1
+fi
+
+
+
+########
+curl --location "http://${Domain_Name}/api/properties/upload" \
+--header 'Content-Type: application/json' \
+--header "Authorization: Bearer ${Bearer_Token}" \
+--data "{
+    \"properties\": {
+        \"backend:DOWNLOAD_DURATION\": \"12\",
+        \"backend:MAX_CONCURRENT_JOB_PER_ORG\": \"1000\",
+        \"backend:MAX_NUM_URLS\": \"50\",
+        \"backend:MAX_RETRIES\": \"2\",
+        \"backend:MAX_TEST_ON_DATASET\": \"1000\",
+        \"backend:MAX_URLS_PER_REQUEST\": \"20\",
+        \"backend:TMP_PATH_PREFIX\": \"tmp/auto_delete\",
+        \"backend:UPLOAD_DURATION\": \"12\",
+        \"batch-processor:ELASTIC_PASSWORD\": \"${ELASTIC_PASSWORD}\",
+        \"batch-processor:ELASTIC_URL\": \"http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200\",
+        \"batch-processor:ELASTIC_USERNAME\": \"elastic\",
+        \"batch-processor:LM_EXECUTER_QUEUE\": \"raga-dev-event-executor-input-queue.fifo\",
+        \"batch-processor:LM_MAX_CONCURRENCY\": \"20\",
+        \"batch-processor:NUMBA_CACHE_DIR\": \"/tmp\",
+        \"batch-processor:S3_BUCKET\": \"${CustomerName}-${EnvName}-testing-platform-backend-s3-storage\",
+        \"batch-processor:SERVICE_INVOCATION_METHOD\": \"knative\",
+        \"batch-processor:SQS_ENDPOINT_URL\": \"https://sqs.us-east1.amazonaws.com\",
+        \"batch-processor:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.us-east1.amazonaws.com/${AWS_AccountId}/raga-dev-status-updater-input-queue.fifo\",
+        \"batch-processor:STATUS_UPDATER_QUEUE\": \"raga-dev-status-updater-input-queue.fifo\",
+        \"data-loader:ELASTIC_SEARCH_BASE_URL\": \"elastic-serch-cluster-es-http.elk.svc.cluster.local\",
+        \"data-loader:ELASTIC_SEARCH_HOST\": \"elastic-serch-cluster-es-http.elk.svc.cluster.local\",
+        \"data-loader:ELASTIC_SEARCH_PASSWORD\": \"${ELASTIC_PASSWORD}\",
+        \"data-loader:ELASTIC_SEARCH_PORT\": \"9200\",
+        \"data-loader:ELASTIC_SEARCH_USERNAME\": \"elastic\",
+        \"data-loader:SERVICE_INVOCATION_METHOD\": \"knative\",
+        \"data-loader:SQS_ENDPOINT_URL\": \"http://sqs.${AWS_Region}.amazonaws.com\",
+        \"data-loader:STATUS_UPDATER_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater\",
+        \"data-loader:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/NA/${CustomerName}-${EnvName}-status-updater-input-queue.fifo\",
+        \"data-loader:STATUS_UPDATER_QUEUE\": \"${CustomerName}-${EnvName}-status-updater-input-queue.fifo\",
+        \"es:ELASTIC_SEARCH_BASE_URL\": \"elastic-serch-cluster-es-http.elk.svc.cluster.local\",
+        \"es:ELASTIC_SEARCH_PASSWORD\": \"${ELASTIC_PASSWORD}\",
+        \"es:ELASTIC_SEARCH_PORT\": \"9200\",
+        \"es:ELASTIC_SEARCH_USERNAME\": \"elastic\",
+        \"es:ENV_TYPE\": \"devel\",
+        \"es:ES_EXPORT_NUM_RECORDS\": \"20000\",
+        \"es:LOGGING_LEVEL\": \"INFO\",
+        \"es:REDIS_URL\": \"redis://redis-master.redis.svc.cluster.local:6379\",
+        \"es:S3_IMAGE_BASE_URL\": \"https://ragaaimedia.s3.us-east1.amazonaws.com/\",
+        \"event-executor:AWS_ACCESS_KEY_ID\": \"na\",
+        \"event-executor:AWS_BUCKET_NAME\": \"${CustomerName}-${EnvName}-testing-platform-backend-s3-storage\",
+        \"event-executor:AWS_SECRET_ACCESS_KEY\": \"na\",
+        \"event-executor:DATA_LOADER_CONCURRENCY\": \"10\",
+        \"event-executor:DATA_LOADER_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader\",
+        \"event-executor:DATA_LOADER_QUEUE\": \"${CustomerName}-${EnvName}-data-loader-input-queue.fifo\",
+        \"event-executor:IMAGE_UPLOAD_S3_URL_PREFIX\": \"https://${CustomerName}-${EnvName}-testing-platform-backend-s3-storage.s3.us-east1.amazonaws.com/1/lm_images/\",
+        \"event-executor:SERVICE_INVOCATION_METHOD\": \"knative\",
+        \"event-executor:STATUS_UPDATER_CONCURRENCY\": \"5\",
+        \"event-executor:STATUS_UPDATER_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater\",
+        \"event-executor:STATUS_UPDATER_SQS_NAME\": \"${CustomerName}-${EnvName}-status-updater-input-queue.fifo\",
+        \"event-executor:us-east1\": \"us-east1\",
+        \"event-executor:VIDEO_DOWNLOAD_METHOD\": \"boto\",
+        \"llm-platform-api:FRONTEND_URL\": \"https://llm-dev4.ragaai.ai\",
+        \"llm-platform-api:MAX_NUM_URLS\": \"50\",
+        \"llm-platform-api:MAX_URLS_PER_REQUEST\": \"20\",
+        \"llm-platform-api:S3_BUCKET\": \"${CustomerName}-${EnvName}-testing-platform-backend-s3-storage\",
+        \"llm-platform-api:TMP_PATH_PREFIX\": \"tmp/auto_delete\",
+        \"llm-platform-esservice:ELASTIC_SEARCH_BASE_URL\": \"elastic-serch-cluster-es-http.elk.svc.cluster.local\",
+        \"llm-platform-esservice:ELASTIC_SEARCH_PASSWORD\": \"${ELASTIC_PASSWORD}\",
+        \"llm-platform-esservice:ELASTIC_SEARCH_PORT\": \"9200\",
+        \"llm-platform-esservice:ELASTIC_SEARCH_USERNAME\": \"elastic\",
+        \"llm-platform-esservice:ES_EXPORT_NUM_RECORDS\": \"20000\",
+        \"llm-platform-operator:ELASTIC_PASSWORD\": \"${ELASTIC_PASSWORD}\",
+        \"llm-platform-operator:ELASTIC_URL\": \"http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200\",
+        \"llm-platform-operator:ELASTIC_USERNAME\": \"elastic\",
+        \"llm-platform-operator:SQS_ENDPOINT_URL\": \"https://sqs.${AWS_Region}.amazonaws.com\",
+        \"llm-platform-operator:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/raga-dev-status-updater-input-queue.fifo\",
+        \"llm-platform-status-updater:DATA_LOADER_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/NA/${CustomerName}-${EnvName}-data-loader-input-queue.fifo\",
+        \"llm-platform-status-updater:MYSQL_DATABASE\": \"llm_platform\",
+        \"llm-platform-status-updater:MYSQL_HOST\": \"${RDSEndpoint}\",
+        \"llm-platform-status-updater:MYSQL_PASSWORD\": \"${MYSQL_PASSWORD}\",
+        \"llm-platform-status-updater:MYSQL_USERNAME\": \"${MYSQL_USERNAME}\",
+        \"llm-platform-status-updater:PYTHON_OPERATOR_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/NA/${CustomerName}-${EnvName}-python-operator-input-queue.fifo\",
+        \"llm-platform-status-updater:UMAP_OPERATOR_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/NA/${CustomerName}-${EnvName}-umap-operators-input-queue.fifo\",
+        \"python-operator:AWS_ACCESS_KEY_ID\": \"na\",
+        \"python-operator:AWS_SECRET_ACCESS_KEY\": \"na\",
+        \"python-operator:ELASTIC_PASSWORD\": \"${ELASTIC_PASSWORD}\",
+        \"python-operator:ELASTIC_URL\": \"http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200\",
+        \"python-operator:ELASTIC_USERNAME\": \"elastic\",
+        \"python-operator:FASTER_RCNN_MODEL_URL\": \"http://faster-rcnn-model.raga-models.svc.cluster.local/\",
+        \"python-operator:LLM_OPERATOR\": \"http://llm-operator.raga-models.svc.cluster.local\",
+        \"python-operator:LM_EXECUTER_QUEUE\": \"raga-dev-event-executor-input-queue.fifo\",
+        \"python-operator:LM_EXECUTOR_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor\",
+        \"python-operator:LM_MAX_CONCURRENCY\": \"20\",
+        \"python-operator:NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA\": \"10\",
+        \"python-operator:NUMBA_CACHE_DIR\": \"/tmp\",
+        \"python-operator:PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator-batch-processor\",
+        \"python-operator:PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL\": \"https://sqs.us-east1.amazonaws.com/${AWS_AccountId}/raga-dev-python-operators-batch-processor-input-queue.fifo\",
+        \"python-operator:PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE\": \"raga-dev-python-operators-batch-processor-input-queue.fifo\",
+        \"python-operator:S3_BUCKET\": \"${CustomerName}-${EnvName}-testing-platform-backend-s3-storage\",
+        \"python-operator:SERVICE_INVOCATION_METHOD\": \"knative\",
+        \"python-operator:SQS_ENDPOINT_URL\": \"https://sqs.us-east1.amazonaws.com\",
+        \"python-operator:STATUS_UPDATER_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater\",
+        \"python-operator:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.us-east1.amazonaws.com/${AWS_AccountId}/raga-dev-status-updater-input-queue.fifo\",
+        \"python-operator:STATUS_UPDATER_QUEUE\": \"raga-dev-status-updater-input-queue.fifo\",
+        \"status-updater:DATA_LOADER_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/data-loader\",
+        \"status-updater:DATA_LOADER_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/NA/${CustomerName}-${EnvName}-data-loader-input-queue.fifo\",
+        \"status-updater:MODEL_PACKAGER_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga-models/model-packager\",
+        \"status-updater:MYSQL_DATABASE\": \"testing_platform\",
+        \"status-updater:MYSQL_HOST\": \"${RDSEndpoint}\",
+        \"status-updater:MYSQL_PASSWORD\": \"${MYSQL_PASSWORD}\",
+        \"status-updater:MYSQL_USERNAME\": \"${MYSQL_USERNAME}\",
+        \"status-updater:PYTHON_OPERATOR_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator\",
+        \"status-updater:PYTHON_OPERATOR_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/NA/${CustomerName}-${EnvName}-python-operator-input-queue.fifo\",
+        \"status-updater:SERVICE_INVOCATION_METHOD\": \"knative\",
+        \"status-updater:UMAP_OPERATOR_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/umap-operators\",
+        \"status-updater:UMAP_OPERATOR_QUEUE_URL\": \"https://sqs.${AWS_Region}.amazonaws.com/NA/${CustomerName}-${EnvName}-umap-operators-input-queue.fifo\",
+        \"umap-operator:AWS_ACCESS_KEY_ID\": \"na\",
+        \"umap-operator:AWS_SECRET_ACCESS_KEY\": \"na\",
+        \"umap-operator:ELASTIC_PASSWORD\": \"${ELASTIC_PASSWORD}\",
+        \"umap-operator:ELASTIC_URL\": \"http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200\",
+        \"umap-operator:ELASTIC_USERNAME\": \"elastic\",
+        \"umap-operator:FASTER_RCNN_MODEL_URL\": \"http://faster-rcnn-model.raga-models.svc.cluster.local/\",
+        \"umap-operator:LLM_OPERATOR\": \"http://llm-operator.raga-models.svc.cluster.local\",
+        \"umap-operator:LM_EXECUTER_QUEUE\": \"raga-dev-event-executor-input-queue.fifo\",
+        \"umap-operator:LM_EXECUTOR_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/event-executor\",
+        \"umap-operator:LM_MAX_CONCURRENCY\": \"20\",
+        \"umap-operator:NUM_OF_CONCURRENT_PYTHON_OPERATORS_BATCH_PROCESSOR_LAMBDA\": \"10\",
+        \"umap-operator:NUMBA_CACHE_DIR\": \"/tmp\",
+        \"umap-operator:PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/python-operator-batch-processor\",
+        \"umap-operator:PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE_URL\": \"https://sqs.us-east1.amazonaws.com/${AWS_AccountId}/raga-dev-python-operators-batch-processor-input-queue.fifo\",
+        \"umap-operator:PYTHON_OPERATORS_BATCH_PROCESSOR_QUEUE\": \"raga-dev-python-operators-batch-processor-input-queue.fifo\",
+        \"umap-operator:S3_BUCKET\": \"${CustomerName}-${EnvName}-testing-platform-backend-s3-storage\",
+        \"umap-operator:SERVICE_INVOCATION_METHOD\": \"knative\",
+        \"umap-operator:SQS_ENDPOINT_URL\": \"https://sqs.us-east1.amazonaws.com\",
+        \"umap-operator:STATUS_UPDATER_KAFKA_BROKER_URL\": \"http://kafka-broker-ingress.knative-eventing.svc.cluster.local/raga/status-updater\",
+        \"umap-operator:STATUS_UPDATER_QUEUE_URL\": \"https://sqs.us-east1.amazonaws.com/${AWS_AccountId}/raga-dev-status-updater-input-queue.fifo\",
+        \"umap-operator:STATUS_UPDATER_QUEUE\": \"raga-dev-status-updater-input-queue.fifo\"
+    }
+}"
