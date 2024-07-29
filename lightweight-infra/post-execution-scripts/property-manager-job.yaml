@@ -12,7 +12,7 @@ spec:
       containers:
       - name: script-runner
         image: alpine
-        command: ["/bin/sh", "-c", "sh /tmp/update_properties.sh CUSTOMER_NAME ENVIRONMENT_NAME AWS_S3_BUCKET_REGION ELASTIC_SEARCH_PASSWORD MYSQL_FQDN MYSQL_USERNAME MYSQL_PASSWORD AWS_S3_BUCKET"]
+        command: ["/bin/sh", "-c", "sh /tmp/update_properties.sh CUSTOMER_NAME ENVIRONMENT_NAME AWS_S3_BUCKET_REGION ELASTIC_SEARCH_PASSWORD MYSQL_FQDN MYSQL_USERNAME MYSQL_PASSWORD"]
         volumeMounts:
         - name: script-volume
           mountPath: /tmp
