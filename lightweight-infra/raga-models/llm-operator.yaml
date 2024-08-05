@@ -65,13 +65,13 @@ containerConcurrency:
 
 PVC:
   enable: false
-  cloud: azure  #allowable values aws | azure
+  cloud: aws  #allowable values aws | azure
   name: "model-executor-pvc"
-  storageClassName: "efs-sc"
+  storageClassName: "standard"
   #following values required for only aws efs
-  storage: 50Gi
-  csiDriver: "efs.csi.aws.com"
-  FilesystemID: "fs-0b2eb5c3625e0aed9"
+  storage: 5Gi
+  # csiDriver: "efs.csi.aws.com"
+  # FilesystemID: "fs-0b2eb5c3625e0aed9"
 
 # env:
 #   - name: API_HOST

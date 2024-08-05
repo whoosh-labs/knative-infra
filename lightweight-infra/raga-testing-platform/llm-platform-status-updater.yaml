@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/lightweight-poc"
-  tag: "llm-platform-status-updater-1"
+  tag: "llm-platform-status-updater-2"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true

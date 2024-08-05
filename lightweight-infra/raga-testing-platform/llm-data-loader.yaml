@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/lightweight-poc"
-  tag: "llm-data-loader1"
+  tag: "llm-data-loader5"
   pullPolicy: IfNotPresent
 metadata:
   name: "llm-data-loader"
@@ -101,10 +101,18 @@ env:
   - name: SQS_ENDPOINT_URL
     value: "NA"
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: "http://status-updater.raga.svc.cluster.local"
+    value: "http://llm-platform-status-updater.raga.svc.cluster.local"
   - name: STATUS_UPDATER_QUEUE
     value: "NA"
   - name: STATUS_UPDATER_QUEUE_URL
     value: "NA"
   - name: ENV_TYPE
-    value: "AWS"
+    value: "MINIO"
+  - name: MINIO_URL
+    value: 'http://3.144.89.222:82'
+  - name: AWS_ACCESS_KEY_ID
+    value: 'LQFwFQOo43qMPeM2WD60'
+  - name: AWS_SECRET_ACCESS_KEY
+    value: 'FOCGPToSYhlpmsb9mNTQrr0so94AhRMdJ3q2Gp0n'
+  - name: AWS_BUCKET_NAME
+    value: 'raga-bucket'

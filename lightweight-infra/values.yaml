@@ -1,0 +1,31 @@
+image:
+  pullPolicy: IfNotPresent
+  pullSecrets:
+    enabled: false
+    secretName:
+
+credentials:
+  root:
+    user: ragaadmin
+    password: Passw0rdAzureDB
+    host: "%"
+
+tls:
+  useSelfSigned: true
+
+serverInstances: 1
+routerInstances: 1
+baseServerId: 1000
+
+podSpec:
+  containers:
+  - name: mysql
+    resources:
+      requests:
+        memory: "1024Mi"
+        cpu: "1000m"
+      limits:
+        memory: "1536Mi"
+        cpu: "1500m"
+
+disableLookups: false

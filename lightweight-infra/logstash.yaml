@@ -77,7 +77,7 @@ logstashPipeline:
           hosts => ["http://elastic-serch-cluster-es-http.elk.svc.cluster.local:9200"]
           index => "%{[log_group]}-%{[log_type]}-%{+YYYY.MM.dd}"
           user => "elastic"
-          password => "elastic_search_password"
+          password => "0cd77387Se357yS"
           action => "create"
         }
       }

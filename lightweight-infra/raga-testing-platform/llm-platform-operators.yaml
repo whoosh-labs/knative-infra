@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/lightweight-poc"
-  tag: "llm-platform-operators-1"
+  tag: "llm-platform-operators-2"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true
@@ -58,7 +58,7 @@ env:
   - name: SERVICE_INVOCATION_METHOD
     value: "knative"
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: "http://tatus-updater.raga.svc.cluster.local"
+    value: "http://llm-platform-status-updater.raga.svc.cluster.local"
   - name: LM_EXECUTOR_KAFKA_BROKER_URL
     value: "http://event-executor.raga.svc.cluster.local"
   - name: PYTHON_OPERATOR_BATCH_PROCESSOR_KAFKA_BROKER_URL

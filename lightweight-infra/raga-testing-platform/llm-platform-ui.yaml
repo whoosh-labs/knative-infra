@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
   repository: "ragaai/lightweight-poc"
-  tag: "llm-platform-ui-6"
+  tag: "llm-platform-ui-7"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true
@@ -53,7 +53,7 @@ domainmapping:
   service: llm-platform-ui
 # env:
 #   - name: ELASTIC_SEARCH_BASE_URL
-#     valueFrom: 
+#     valueFrom:
 #       secretKeyRef:
 #         name: llm-platform-ui
 #         key: ELASTIC_SEARCH_BASE_URL

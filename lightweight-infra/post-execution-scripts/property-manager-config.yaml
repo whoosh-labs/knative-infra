@@ -17,13 +17,13 @@ data:
     MYSQL_PASSWORD=$7
     AWS_S3_BUCKET_NAME=$8
     AWS_AccountId="NA"
-    Domain_Name="backend.raga.svc.cluster.local"
+    Domain_Name="llm-platform-api.raga.svc.cluster.local"
     StatusUpdaterFifoInputQueueUrl="https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/${CustomerName}-${EnvName}-status-updater-input-queue.fifo"
     PythonOperatorsBatchProcessorFifoInputQueueUrl="https://sqs.${AWS_Region}.amazonaws.com/${AWS_AccountId}/${CustomerName}-${EnvName}-python-operators-batch-processor-input-queue.fifo"
 
     apk add --no-cache curl jq bash
 
-    API_URL="http://backend.raga.svc.cluster.local/api/healthcheck"
+    API_URL="http://llm-platform-api.raga.svc.cluster.local/api/healthcheck"
 
     # Number of attempts
     MAX_ATTEMPTS=100
@@ -31,7 +31,7 @@ data:
 
     for i in $(seq 1 $MAX_ATTEMPTS); do
       echo "Attempt #$i"
-      HTTP_STATUS=$(curl -s -o /${EnvName}/null -w "%{http_code}" $API_URL)
+      HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
       if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "API responded with status 200"
         break

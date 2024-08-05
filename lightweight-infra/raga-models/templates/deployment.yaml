@@ -4,7 +4,7 @@ metadata:
   labels:
     app: {{ include "ragaai-helm.fullname" . }}
   name: {{ include "ragaai-helm.fullname" . }}
-  namespace: raga
+  namespace: raga-models
 spec:
   replicas: 1
   selector:

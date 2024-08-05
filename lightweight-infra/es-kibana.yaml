@@ -75,6 +75,81 @@ spec:
       xpack.security.enrollment.enabled: true
       xpack.security.http.ssl.enabled: false
       xpack.security.transport.ssl.enabled: true
+
+  - name: data
+    count: 1
+    podTemplate:
+      spec:
+        # serviceAccountName: elasticsearch-snapshots
+        securityContext:
+          fsGroup: 0
+          runAsUser: 1000
+          runAsGroup: 0
+        containers:
+        - name: elasticsearch
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - -c
+              - /mnt/elastic-internal/scripts/readiness-probe-script.sh
+            failureThreshold: 3
+            initialDelaySeconds: 90
+            periodSeconds: 12
+            successThreshold: 1
+            timeoutSeconds: 12
+          env:
+          - name: READINESS_PROBE_TIMEOUT
+            value: "90"
+          - name: READINESS_PROBE_PROTOCOL
+            value: "http"
+          # - name: AWS_WEB_IDENTITY_TOKEN_FILE
+          #   value: "/usr/share/elasticsearch/config/repository-s3/aws-web-identity-token-file" 
+          # - name: AWS_ROLE_ARN
+          #   value: {{ .Values.elaticsearch.irsa_role_arn }} 
+          # volumeMounts:
+          # - name: aws-iam-token
+          #   mountPath: /usr/share/elasticsearch/config/repository-s3
+        # volumes:
+        # - name: aws-iam-token
+        #   projected:
+        #     sources:
+        #     - serviceAccountToken:
+        #         audience: sts.amazonaws.com
+        #         expirationSeconds: 86400
+        #         path: aws-web-identity-token-file
+          resources:
+            limits:
+              cpu: 1
+              memory: 2Gi
+            requests:
+              cpu: 1
+              memory: 2Gi
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: standard
+    config:
+      node.roles: ["data"]
+      xpack.ml.enabled: true
+      xpack.security.enabled: true
+      xpack.security.enrollment.enabled: true
+      xpack.security.http.ssl.enabled: false
+      xpack.security.transport.ssl.enabled: true
+
+
 ---
 apiVersion: kibana.k8s.elastic.co/v1
 kind: Kibana
@@ -103,3 +178,4 @@ spec:
           limits:
             memory: 4Gi
             cpu: 1
+

@@ -1,7 +1,6 @@
-# Default values for testing-platform-api.
 image:
   repository: "ragaai/lightweight-poc"
-  tag: "llm-platform-api1"
+  tag: "llm-platform-api11"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true
@@ -57,16 +56,6 @@ env:
       secretKeyRef:
         name: llm-platform-api
         key: API_HOST
-  - name: AWS_BUCKET_NAME
-    valueFrom:
-      secretKeyRef:
-        name: llm-platform-api
-        key: AWS_BUCKET_NAME
-  - name: FRONTEND_URL
-    valueFrom:
-      secretKeyRef:
-        name: llm-platform-api
-        key: FRONTEND_URL
   - name: GITHUB_CLIENT_ID
     valueFrom:
       secretKeyRef:
@@ -151,7 +140,7 @@ env:
   - name: MAX_FILE_SIZE_IN_GB
     value: '5'
   - name: STATUS_UPDATER_KAFKA_BROKER_URL
-    value: 'http://status-updater.raga.svc.cluster.local'
+    value: 'http://llm-platform-status-updater.raga.svc.cluster.local'
   - name: PROPERTY_MANAGER_SERVICE_URL
     value: 'http://property-manager-client.raga.svc.cluster.local'
   - name: REDIS_URL
@@ -161,7 +150,7 @@ env:
   - name: PROPERTY_MANAGER_LOADER_URL
     value: 'http://property-manager-client.raga.svc.cluster.local'
   - name: CLOUD_ENVIRONMENT
-    value: 'AWS'
+    value: 'MINIO'
   - name: AZURE_CONNECTION_STRING
     value: 'Azure'
   - name: JWT_TOKEN_EXPIRATION
@@ -170,13 +159,17 @@ env:
     value: 'INFO'
   - name: JWT_REFRESH_TOKEN_EXPIRATION
     value: '86400000'
+  - name: AZURE_CONTAINER_NAME
+    value: ''
+  - name: MINIO_URL
+    value: 'http://3.144.89.222:82'
   - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: aws-keys
-        key: AWS_ACCESS_KEY_ID
+    value: 'LQFwFQOo43qMPeM2WD60'
   - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: aws-keys
-        key: AWS_SECRET_ACCESS_KEY
+    value: 'FOCGPToSYhlpmsb9mNTQrr0so94AhRMdJ3q2Gp0n'
+  - name: AWS_BUCKET_NAME
+    value: 'raga-bucket'
+  - name: FRONTEND_URL
+    value: 'http://3.144.89.222:80'
+  - name: LITELLM_PROXY_URL
+    value: 'Na'

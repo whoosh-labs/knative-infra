@@ -1,7 +1,7 @@
 # Default values for testing-platform-backend.
 image:
-  repository: "ragaai/models"
-  tag: "model-packager-8"
+  repository: "ragaai/model-executor-release"
+  tag: "20-1b81bee"
   pullPolicy: IfNotPresent
 imagePullSecrets:
   create: true
@@ -17,7 +17,10 @@ broker:
 trigger:
   create: true
 service:
-  port: 8000
+  port: 8090
+  NodePort:
+    create: false
+    port: 32000
 DisablePublicAccess: false
 resources:
   limits:
@@ -37,30 +40,35 @@ autoscaling:
 livenessProbe:
   httpGet:
     path: /api/healthcheck
-    port: 8000
+    port: 8090
   initialDelaySeconds: 10
   periodSeconds: 10
 readinessProbe:
   httpGet:
     path: /api/healthcheck
-    port: 8000
+    port: 8090
   initialDelaySeconds: 3
   periodSeconds: 3
 containerConcurrency:
   enable: true
   limit: 1
 PVC:
-  enable: true
+  enable: false
   name: "model-executor-pvc"
   storageClassName: "standard"
 env:
+  # - name: AWS_ACCESS_KEY_ID
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: aws-keys
+  #       key: AWS_ACCESS_KEY_ID
+  # - name: AWS_SECRET_ACCESS_KEY
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: aws-keys
+  #       key: AWS_SECRET_ACCESS_KEY
   - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: aws-keys
-        key: AWS_ACCESS_KEY_ID
+    value: "Na"
   - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: aws-keys
-        key: AWS_SECRET_ACCESS_KEY
+    value: "Na"
+
