@@ -1,0 +1,17 @@
+
+testingjenkinsprod / 2025-02-05 09:37:34
+Create test
+Update serving-core.yaml
+Increased activator capacity from 100.0 to 1000
+Update serving-core.yaml
+stable helm charts
+Update istio.yaml
+fixed internal gateway issue
+Update istio.yaml
+test
+updated internal ingress version
+added internal ingress gateway
+enabled node selector
+Property manager (#9)
+reverted changes
+removed namespace
